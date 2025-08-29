@@ -3,11 +3,11 @@ import {
   IsNumber,
   IsString,
   IsEnum,
-  IsOptional,
   IsNotEmpty,
+  IsOptional,
 } from 'class-validator';
 
-export class CreateLeadDto {
+export class CreateLeadBodyDto {
   @ApiProperty()
   @IsNumber()
   @IsNotEmpty()

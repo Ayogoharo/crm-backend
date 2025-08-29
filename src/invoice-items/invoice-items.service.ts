@@ -6,6 +6,12 @@ import {
 import { Repository } from 'typeorm';
 import { InvoiceItem } from './entities/invoice-item.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateInvoiceItemBodyDto } from './dto/create-invoice-item-body.dto';
+import { CreateInvoiceItemResponseDto } from './dto/create-invoice-item-response.dto';
+import { FindAllInvoiceItemsResponseDto } from './dto/find-all-invoice-items-response.dto';
+import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
+import { UpdateInvoiceItemBodyDto } from './dto/update-invoice-item-body.dto';
+import { UpdateInvoiceItemResponseDto } from './dto/update-invoice-item-response.dto';
 
 @Injectable()
 export class InvoiceItemsService {
@@ -14,16 +20,26 @@ export class InvoiceItemsService {
     private readonly invoiceItemRepository: Repository<InvoiceItem>,
   ) {}
 
-  async create(invoiceItemData: Partial<InvoiceItem>): Promise<InvoiceItem> {
-    const invoiceItem = this.invoiceItemRepository.create(invoiceItemData);
-    return this.invoiceItemRepository.save(invoiceItem);
+  async create(
+    invoiceItemData: CreateInvoiceItemBodyDto,
+  ): Promise<CreateInvoiceItemResponseDto> {
+    try {
+      const invoiceItem = this.invoiceItemRepository.create(invoiceItemData);
+      const newInvoiceItem = await this.invoiceItemRepository.save(invoiceItem);
+      return { id: newInvoiceItem.id };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error creating invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
   }
 
-  async findAll(): Promise<InvoiceItem[]> {
+  async findAll(): Promise<FindAllInvoiceItemsResponseDto> {
     try {
-      return this.invoiceItemRepository.find({
+      const invoiceItems = await this.invoiceItemRepository.find({
         relations: ['invoice'],
       });
+      return { invoiceItems };
     } catch (error) {
       throw new InternalServerErrorException(
         `Error finding invoice items: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -31,7 +47,7 @@ export class InvoiceItemsService {
     }
   }
 
-  async findById(id: number): Promise<InvoiceItem> {
+  async findById(id: number): Promise<FindByIdResponseDto> {
     try {
       const invoiceItem = await this.invoiceItemRepository.findOne({
         where: { id },
@@ -50,15 +66,39 @@ export class InvoiceItemsService {
 
   async update(
     id: number,
-    invoiceItemData: Partial<InvoiceItem>,
-  ): Promise<InvoiceItem> {
-    await this.findById(id); // Check if invoice item exists
-    await this.invoiceItemRepository.update(id, invoiceItemData);
-    return this.findById(id);
+    invoiceItem: UpdateInvoiceItemBodyDto,
+  ): Promise<UpdateInvoiceItemResponseDto> {
+    try {
+      const existingInvoiceItem = await this.invoiceItemRepository.findOneBy({
+        id: invoiceItem.id,
+      });
+      if (!existingInvoiceItem || existingInvoiceItem === null) {
+        throw new NotFoundException(
+          `Invoice item with ID ${invoiceItem.id} not found`,
+        );
+      }
+      await this.invoiceItemRepository.update(invoiceItem.id, invoiceItem);
+      return this.findById(invoiceItem.id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error updating invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
   }
 
   async delete(id: number): Promise<void> {
-    const invoiceItem = await this.findById(id); // Check if invoice item exists
-    await this.invoiceItemRepository.remove(invoiceItem);
+    try {
+      const existingInvoiceItem = await this.invoiceItemRepository.findOneBy({
+        id,
+      });
+      if (!existingInvoiceItem || existingInvoiceItem === null) {
+        throw new NotFoundException(`Invoice item with ID ${id} not found`);
+      }
+      await this.invoiceItemRepository.remove(existingInvoiceItem);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error deleting invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
   }
 }

@@ -2,14 +2,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsString,
-  IsEnum,
   IsOptional,
-  MinLength,
 } from 'class-validator';
 
-export class UpdateUserBodyDto {
+export class UpdateClientBodyDto {
   @ApiProperty()
   id: number;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  name?: string;
 
   @ApiProperty({ required: false })
   @IsEmail()
@@ -19,21 +22,10 @@ export class UpdateUserBodyDto {
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  username?: string;
+  phone?: string;
 
   @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
-  @MinLength(8)
-  password?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  fullName?: string;
-
-  @ApiProperty({ enum: ['admin', 'sales', 'accountant'], required: false })
-  @IsEnum(['admin', 'sales', 'accountant'])
-  @IsOptional()
-  role?: 'admin' | 'sales' | 'accountant';
+  address?: string;
 }

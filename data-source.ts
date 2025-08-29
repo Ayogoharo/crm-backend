@@ -7,6 +7,7 @@ import { InvoiceItem } from 'src/invoice-items/entities/invoice-item.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
 import { User } from 'src/users/entities/user.entity';
 import { InitialMigration1756396888643 } from 'migrations/1756396888643-InitialMigration';
+import { RenamePasswordHashToPassword1756398000000 } from 'migrations/1756398000000-RenamePasswordHashToPassword';
 
 // Load environment variables
 config();
@@ -20,7 +21,10 @@ export const AppDataSource = new DataSource({
   synchronize: process.env.NODE_ENV !== 'production',
   logging: process.env.NODE_ENV === 'development',
   entities: [User, Client, Lead, Invoice, InvoiceItem, Payment],
-  migrations: [InitialMigration1756396888643],
+  migrations: [
+    InitialMigration1756396888643,
+    RenamePasswordHashToPassword1756398000000,
+  ],
   migrationsTableName: 'migrations',
   ssl:
     process.env.NODE_ENV === 'production'

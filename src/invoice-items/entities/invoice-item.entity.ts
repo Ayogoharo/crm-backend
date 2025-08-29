@@ -12,9 +12,6 @@ export class InvoiceItem {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'invoice_id' })
-  invoiceId: number;
-
   @Column({ type: 'text' })
   description: string;
 

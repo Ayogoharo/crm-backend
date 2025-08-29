@@ -6,6 +6,12 @@ import {
 import { Repository } from 'typeorm';
 import { Payment } from './entities/payment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreatePaymentBodyDto } from './dto/create-payment-body.dto';
+import { CreatePaymentResponseDto } from './dto/create-payment-response.dto';
+import { FindAllPaymentsResponseDto } from './dto/find-all-payments-response.dto';
+import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
+import { UpdatePaymentBodyDto } from './dto/update-payment-body.dto';
+import { UpdatePaymentResponseDto } from './dto/update-payment-response.dto';
 
 @Injectable()
 export class PaymentsService {
@@ -14,16 +20,26 @@ export class PaymentsService {
     private readonly paymentRepository: Repository<Payment>,
   ) {}
 
-  async create(paymentData: Partial<Payment>): Promise<Payment> {
-    const payment = this.paymentRepository.create(paymentData);
-    return this.paymentRepository.save(payment);
+  async create(
+    paymentData: CreatePaymentBodyDto,
+  ): Promise<CreatePaymentResponseDto> {
+    try {
+      const payment = this.paymentRepository.create(paymentData);
+      const newPayment = await this.paymentRepository.save(payment);
+      return { id: newPayment.id };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error creating payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
   }
 
-  async findAll(): Promise<Payment[]> {
+  async findAll(): Promise<FindAllPaymentsResponseDto> {
     try {
-      return this.paymentRepository.find({
+      const payments = await this.paymentRepository.find({
         relations: ['invoice', 'recordedByUser'],
       });
+      return { payments };
     } catch (error) {
       throw new InternalServerErrorException(
         `Error finding payments: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -31,7 +47,7 @@ export class PaymentsService {
     }
   }
 
-  async findById(id: number): Promise<Payment> {
+  async findById(id: number): Promise<FindByIdResponseDto> {
     try {
       const payment = await this.paymentRepository.findOne({
         where: { id },
@@ -48,14 +64,36 @@ export class PaymentsService {
     }
   }
 
-  async update(id: number, paymentData: Partial<Payment>): Promise<Payment> {
-    await this.findById(id); // Check if payment exists
-    await this.paymentRepository.update(id, paymentData);
-    return this.findById(id);
+  async update(
+    payment: UpdatePaymentBodyDto,
+  ): Promise<UpdatePaymentResponseDto> {
+    try {
+      const existingPayment = await this.paymentRepository.findOneBy({
+        id: payment.id,
+      });
+      if (!existingPayment || existingPayment === null) {
+        throw new NotFoundException(`Payment with ID ${payment.id} not found`);
+      }
+      await this.paymentRepository.update(payment.id, payment);
+      return this.findById(payment.id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error updating payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
   }
 
   async delete(id: number): Promise<void> {
-    const payment = await this.findById(id); // Check if payment exists
-    await this.paymentRepository.remove(payment);
+    try {
+      const existingPayment = await this.paymentRepository.findOneBy({ id });
+      if (!existingPayment || existingPayment === null) {
+        throw new NotFoundException(`Payment with ID ${id} not found`);
+      }
+      await this.paymentRepository.remove(existingPayment);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error deleting payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
   }
 }

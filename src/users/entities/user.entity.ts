@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { MinLength } from 'class-validator';
 
 @Entity('users')
 export class User {
@@ -17,8 +18,9 @@ export class User {
   @Column({ type: 'varchar', length: 100, unique: true })
   username: string;
 
-  @Column({ type: 'text', name: 'password_hash' })
-  passwordHash: string;
+  @Column({ type: 'varchar', length: 255 })
+  @MinLength(8)
+  password: string;
 
   @Column({ type: 'varchar', length: 255, name: 'full_name' })
   fullName: string;
