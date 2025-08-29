@@ -185,7 +185,7 @@ The API will be available at `http://localhost:3000`
 <details>
 <summary><strong>🗄️ Database Structure</strong></summary>
 
-![Database Schema]([https://github.com/Ayogoharo/crm-backend/edit/main/schema.png](https://res.cloudinary.com/daha2qfsq/image/upload/v1756483473/Screenshot_from_2025-08-29_18-32-57_lpmcn4.png))
+![Database Schema](https://res.cloudinary.com/daha2qfsq/image/upload/Screenshot_from_2025-08-29_18-32-57_lpmcn4.png)
 
 The database consists of six main entities with the following relationships:
 
