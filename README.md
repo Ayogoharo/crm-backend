@@ -1,98 +1,254 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# CRM Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This is a simple Customer Relationship Management (CRM) backend application. The system provides simple CRUD functionality for managing clients, leads, invoices, payments, and users with role-based access control. Built using **NestJS** framework with **TypeScript**, **TypeORM** for database management, **PostgreSQL** as the primary database, **Redis** for caching, and **Docker** for containerization. The application follows RESTful API principles, error handling, and database relations.
 
-## Description
+## Setup Instructions
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Follow these step-by-step instructions to install and run the application:
 
-## Project setup
+### Prerequisites
 
-```bash
-$ npm install
-```
+- Node.js (v18 or higher)
+- Docker and Docker Compose
+- Git
 
-## Compile and run the project
+### Installation Steps
 
-```bash
-# development
-$ npm run start
+1. **Clone the repository**
 
-# watch mode
-$ npm run start:dev
+   ```bash
+   git clone <repository-url>
+   cd crm-backend
+   ```
 
-# production mode
-$ npm run start:prod
-```
+2. **Install dependencies**
 
-## Run tests
+   ```bash
+   npm install
+   ```
 
-```bash
-# unit tests
-$ npm run test
+3. **Create environment file**
+   Create a `.env` file in the root directory with the following configuration:
 
-# e2e tests
-$ npm run test:e2e
+   ```env
+   # Database Configuration
+   POSTGRES_HOST=localhost
+   POSTGRES_PORT=5432
+   POSTGRES_USER=your_postgres_user
+   POSTGRES_PASSWORD=your_postgres_password
+   POSTGRES_DB=postgres_db_name
 
-# test coverage
-$ npm run test:cov
-```
+   # Redis Configuration
+   REDIS_PASSWORD=your_redis_password
 
-## Deployment
+   # Application Environment
+   NODE_ENV=development
+   ```
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+4. **Start database services**
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+   ```bash
+   docker-compose up -d
+   ```
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+5. **Build the application**
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+   ```bash
+   npm run build
+   ```
 
-## Resources
+6. **Run database migrations**
 
-Check out a few resources that may come in handy when working with NestJS:
+   ```bash
+   npx typeorm migration:run -d ./dist/data-source.js
+   ```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+7. **Start the application**
+   ```bash
+   # Development mode only
+   npm run start:dev
+   ```
 
-## Support
+The API will be available at `http://localhost:3000`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+<details>
+<summary><strong>📚 API Endpoints</strong></summary>
 
-## Stay in touch
+### Users Management
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- **POST** `/users` - Create new user
+  ```json
+  {
+    "email": "user@example.com",
+    "username": "johndoe",
+    "password": "password123",
+    "fullName": "John Doe",
+    "role": "admin" // admin | sales | accountant
+  }
+  ```
+- **GET** `/users` - Get all users
+- **GET** `/users/:id` - Get user by ID
+- **PUT** `/users` - Update user
+- **DELETE** `/users/:id` - Delete user
 
-## License
+### Clients Management
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **POST** `/clients` - Create new client
+  ```json
+  {
+    "name": "Acme Corporation",
+    "email": "contact@acme.com",
+    "phone": "+1234567890",
+    "address": "123 Business St, City, State"
+  }
+  ```
+- **GET** `/clients` - Get all clients
+- **GET** `/clients/:id` - Get client by ID
+- **PUT** `/clients` - Update client
+- **DELETE** `/clients/:id` - Delete client
+- **GET** `/clients/total/:id` - Get client invoice total
+
+### Leads Management
+
+- **POST** `/leads` - Create new lead
+  ```json
+  {
+    "clientId": 1,
+    "ownerId": 1,
+    "status": "new", // new | contacted | qualified | won | lost
+    "source": "website",
+    "notes": "Interested in our premium package"
+  }
+  ```
+- **GET** `/leads` - Get all leads (supports filtering by userId and status)
+- **GET** `/leads/:id` - Get lead by ID
+- **PUT** `/leads/:id` - Update lead
+- **DELETE** `/leads/:id` - Delete lead
+
+### Invoices Management
+
+- **POST** `/invoices` - Create new invoice
+  ```json
+  {
+    "clientId": 1,
+    "issuedBy": 1,
+    "invoiceDate": "2024-01-15",
+    "dueDate": "2024-02-15",
+    "status": "draft", // draft | sent | paid | overdue | cancelled
+    "totalAmount": 1500.0
+  }
+  ```
+- **GET** `/invoices` - Get all invoices (supports filtering by status)
+- **GET** `/invoices/:id` - Get invoice by ID
+- **PUT** `/invoices` - Update invoice
+- **DELETE** `/invoices/:id` - Delete invoice
+
+### Invoice Items Management
+
+- **POST** `/invoice-items` - Create new invoice item
+  ```json
+  {
+    "invoiceId": 1,
+    "description": "Web Development Services",
+    "quantity": 40,
+    "unitPrice": 75.0,
+    "lineTotal": 3000.0
+  }
+  ```
+- **GET** `/invoice-items` - Get all invoice items
+- **GET** `/invoice-items/:id` - Get invoice item by ID
+- **PUT** `/invoice-items` - Update invoice item
+- **DELETE** `/invoice-items/:id` - Delete invoice item
+
+### Payments Management
+
+- **POST** `/payments` - Create new payment
+  ```json
+  {
+    "invoiceId": 1,
+    "recordedBy": 1,
+    "paymentDate": "2024-01-20",
+    "amount": 1500.0,
+    "method": "bank_transfer", // cash | bank_transfer | credit_card | paypal
+    "reference": "TXN123456789"
+  }
+  ```
+- **GET** `/payments` - Get all payments
+- **GET** `/payments/:id` - Get payment by ID
+- **PUT** `/payments` - Update payment
+- **DELETE** `/payments/:id` - Delete payment
+
+</details>
+
+<details>
+<summary><strong>🗄️ Database Structure</strong></summary>
+
+![Database Schema](https://github.com/Ayogoharo/crm-backend/edit/main/schema.png)
+
+The database consists of six main entities with the following relationships:
+
+### **Users Table**
+
+- **Primary Key**: `id` (auto-increment)
+- **Fields**: `email` (unique), `username` (unique), `password`, `full_name`, `role`, `created_at`, `updated_at`
+- **Roles**: admin, sales, accountant
+- **Relationships**:
+  - One-to-Many with Leads (as owner)
+  - One-to-Many with Invoices (as issuer)
+  - One-to-Many with Payments (as recorder)
+
+### **Clients Table**
+
+- **Primary Key**: `id` (auto-increment)
+- **Fields**: `name`, `email`, `phone`, `address`, `created_at`, `updated_at`
+- **Relationships**:
+  - One-to-Many with Leads
+  - One-to-Many with Invoices
+
+### **Leads Table**
+
+- **Primary Key**: `id` (auto-increment)
+- **Fields**: `client_id`, `owner_id`, `status`, `source`, `notes`, `created_at`, `updated_at`
+- **Status Values**: new, contacted, qualified, won, lost
+- **Relationships**:
+  - Many-to-One with Clients (CASCADE delete)
+  - Many-to-One with Users (SET NULL on delete)
+
+### **Invoices Table**
+
+- **Primary Key**: `id` (auto-increment)
+- **Fields**: `client_id`, `issued_by`, `invoice_date`, `due_date`, `status`, `total_amount`, `created_at`, `updated_at`
+- **Status Values**: draft, sent, paid, overdue, cancelled
+- **Relationships**:
+  - Many-to-One with Clients (CASCADE delete)
+  - Many-to-One with Users (SET NULL on delete)
+  - One-to-Many with Invoice Items
+  - One-to-Many with Payments
+
+### **Invoice Items Table**
+
+- **Primary Key**: `id` (auto-increment)
+- **Fields**: `invoice_id`, `description`, `quantity`, `unit_price`, `line_total`
+- **Relationships**:
+  - Many-to-One with Invoices (CASCADE delete)
+
+### **Payments Table**
+
+- **Primary Key**: `id` (auto-increment)
+- **Fields**: `invoice_id`, `recorded_by`, `payment_date`, `amount`, `method`, `reference`, `created_at`
+- **Payment Methods**: cash, bank_transfer, credit_card, paypal
+- **Relationships**:
+  - Many-to-One with Invoices (CASCADE delete)
+  - Many-to-One with Users (SET NULL on delete)
+
+### **Key Database Features**
+
+- **Referential Integrity**: All foreign key relationships are properly defined
+- **Cascade Operations**: Related records are automatically managed on parent deletion
+- **Data Validation**: Entity-level validation using class-validator decorators
+- **Timestamps**: Automatic creation and update timestamps on relevant entities
+- **Decimal Precision**: Financial amounts stored with 12,2 precision for accuracy
+
+</details>
