@@ -65,7 +65,12 @@ Follow these step-by-step instructions to install and run the application:
    npx typeorm migration:run -d ./dist/data-source.js
    ```
 
-7. **Start the application**
+7. **Seed the database (optional)**
+   ```bash
+   npm run seed
+   ```
+
+8. **Start the application**
    ```bash
    # Development mode only
    npm run start:dev
