@@ -65,12 +65,7 @@ Follow these step-by-step instructions to install and run the application:
    npx typeorm migration:run -d ./dist/data-source.js
    ```
 
-7. **Seed the database (optional)**
-   ```bash
-   npm run seed
-   ```
-
-8. **Start the application**
+7. **Start the application**
    ```bash
    # Development mode only
    npm run start:dev
@@ -190,7 +185,7 @@ The API will be available at `http://localhost:3000`
 <details>
 <summary><strong>🗄️ Database Structure</strong></summary>
 
-![Database Schema](https://res.cloudinary.com/daha2qfsq/image/upload/Screenshot_from_2025-08-29_18-32-57_lpmcn4.png)
+![Database Schema](https://github.com/Ayogoharo/crm-backend/edit/main/schema.png)
 
 The database consists of six main entities with the following relationships:
 

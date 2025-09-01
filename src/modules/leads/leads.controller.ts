@@ -9,28 +9,23 @@ import {
   ParseIntPipe,
   Query,
 } from '@nestjs/common';
-import { LeadsService } from './leads.service';
-import { CreateLeadBodyDto } from './dto/create-lead-body.dto';
-import { UpdateLeadBodyDto } from './dto/update-lead-body.dto';
-import { CreateLeadResponseDto } from './dto/create-lead-response.dto';
-import { FindAllLeadsResponseDto } from './dto/find-all-leads-response.dto';
-import { FilterLeadsQueryDto } from './dto/filter-leads-query.dto';
+import * as leadsService from './leads.service';
 
 @Controller('leads')
 export class LeadsController {
-  constructor(private readonly leadsService: LeadsService) {}
+  constructor(private readonly leadsService: leadsService.LeadsService) {}
 
   @Post()
   async create(
-    @Body() createLeadDto: CreateLeadBodyDto,
-  ): Promise<CreateLeadResponseDto> {
+    @Body() createLeadDto: leadsService.CreateLeadBodyDto,
+  ): Promise<leadsService.CreateLeadResponseDto> {
     return this.leadsService.create(createLeadDto);
   }
 
   @Get()
   async findAll(
-    @Query() filters: FilterLeadsQueryDto,
-  ): Promise<FindAllLeadsResponseDto> {
+    @Query() filters: leadsService.FilterLeadsQueryDto,
+  ): Promise<leadsService.FindAllLeadsResponseDto> {
     // If no filters are provided, return all leads
     if (!filters.userId && !filters.status) {
       return this.leadsService.findAll();
@@ -47,7 +42,7 @@ export class LeadsController {
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateLeadDto: UpdateLeadBodyDto,
+    @Body() updateLeadDto: leadsService.UpdateLeadBodyDto,
   ) {
     return this.leadsService.update(id, updateLeadDto);
   }
