@@ -31,7 +31,10 @@ export class UpdatePaymentBodyDto {
   @IsOptional()
   amount?: number;
 
-  @ApiProperty({ enum: ['cash', 'bank_transfer', 'credit_card', 'paypal'], required: false })
+  @ApiProperty({
+    enum: ['cash', 'bank_transfer', 'credit_card', 'paypal'],
+    required: false,
+  })
   @IsEnum(['cash', 'bank_transfer', 'credit_card', 'paypal'])
   @IsOptional()
   method?: 'cash' | 'bank_transfer' | 'credit_card' | 'paypal';

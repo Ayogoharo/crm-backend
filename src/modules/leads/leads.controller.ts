@@ -10,10 +10,14 @@ import {
   Query,
 } from '@nestjs/common';
 import * as leadsService from './leads.service';
+import { LeadsQueueService } from 'src/queues/services/leads-queue.service';
 
 @Controller('leads')
 export class LeadsController {
-  constructor(private readonly leadsService: leadsService.LeadsService) {}
+  constructor(
+    private readonly leadsService: leadsService.LeadsService,
+    private readonly leadsQueueService: LeadsQueueService,
+  ) {}
 
   @Post()
   async create(
@@ -37,6 +41,45 @@ export class LeadsController {
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.leadsService.findById(id);
+  }
+
+  @Get(':id/enrichment')
+  async enrichLead(@Param('id', ParseIntPipe) id: number) {
+    // API layer - only dispatch jobs, no processing
+    const lead = await this.leadsService.findById(id);
+
+    if (!lead) {
+      return { error: 'Lead not found' };
+    }
+
+    // Extract source data from lead
+    const sourceData = {
+      email: lead.notes?.includes('@')
+        ? lead.notes.match(/\S+@\S+\.\S+/)?.[0]
+        : undefined,
+      company: lead.client?.name,
+      phone: lead.client?.phone,
+      website: lead.client?.address?.includes('http')
+        ? lead.client.address
+        : undefined,
+    };
+
+    // Single enrichment job
+    const result = await this.leadsQueueService.enrichLead(id, sourceData);
+
+    return {
+      message: 'Lead enrichment started',
+      jobId: result.jobId,
+      statusUrl: `/leads/${id}/enrichment/status/${result.jobId}`,
+    };
+  }
+
+  @Get(':id/enrichment/status/:jobId')
+  async getEnrichmentStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('jobId') jobId: string,
+  ) {
+    return this.leadsQueueService.getEnrichmentJobStatus(jobId);
   }
 
   @Put(':id')

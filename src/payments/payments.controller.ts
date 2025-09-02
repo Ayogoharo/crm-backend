@@ -30,8 +30,7 @@ export class PaymentsController {
 
   @Get()
   async findAll(): Promise<FindAllPaymentsResponseDto> {
-    const payments = await this.paymentsService.findAll();
-    return { payments };
+    return this.paymentsService.findAll();
   }
 
   @Get(':id')

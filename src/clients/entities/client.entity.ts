@@ -1,5 +1,5 @@
 import { Invoice } from 'src/invoices/entities/invoice.entity';
-import { Lead } from 'src/leads/entities/lead.entity';
+import { Lead } from 'src/modules/leads/domain/entities/lead.entity';
 import {
   Column,
   Entity,

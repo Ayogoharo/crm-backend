@@ -1,13 +1,13 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
 import { Client } from 'src/clients/entities/client.entity';
-import { Lead } from 'src/leads/entities/lead.entity';
 import { Invoice } from 'src/invoices/entities/invoice.entity';
 import { InvoiceItem } from 'src/invoice-items/entities/invoice-item.entity';
 import { Payment } from 'src/payments/entities/payment.entity';
 import { User } from 'src/users/entities/user.entity';
 import { InitialMigration1756396888643 } from 'migrations/1756396888643-InitialMigration';
 import { RenamePasswordHashToPassword1756398000000 } from 'migrations/1756398000000-RenamePasswordHashToPassword';
+import { Lead } from 'src/modules/leads/domain/entities/lead.entity';
 
 // Load environment variables
 config();

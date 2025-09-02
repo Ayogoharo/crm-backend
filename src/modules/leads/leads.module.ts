@@ -10,9 +10,10 @@ import { UpdateLeadStatusUseCase } from './application/use-cases/update-lead-sta
 import { LeadScoringService } from './domain/services/lead-scoring.service';
 import { TypeOrmLeadRepository } from './infrastructure/repositories/typeorm-lead.repository';
 import { LeadsService } from './leads.service';
+import { QueuesModule } from 'src/queues/queues.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Lead])],
+  imports: [TypeOrmModule.forFeature([Lead]), QueuesModule],
   controllers: [LeadsController],
   providers: [
     LeadsService,

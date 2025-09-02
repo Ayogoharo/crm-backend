@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
+import { PdfQueueService } from 'src/queues/services/pdf-queue.service';
 import { CreateInvoiceBodyDto } from './dto/create-invoice-body.dto';
 import { CreateInvoiceResponseDto } from './dto/create-invoice-response.dto';
 import { FindAllInvoicesResponseDto } from './dto/find-all-invoices-response.dto';
@@ -20,7 +21,10 @@ import { FilterInvoicesQueryDto } from './dto/filter-invoices-query.dto';
 
 @Controller('invoices')
 export class InvoicesController {
-  constructor(private readonly invoicesService: InvoicesService) {}
+  constructor(
+    private readonly invoicesService: InvoicesService,
+    private readonly pdfQueueService: PdfQueueService,
+  ) {}
 
   @Post()
   async create(
@@ -47,6 +51,33 @@ export class InvoicesController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<FindByIdResponseDto> {
     return this.invoicesService.findById(id);
+  }
+
+  @Get(':id/pdf')
+  async generatePdf(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('requestedBy') requestedBy?: number,
+  ) {
+    // API layer - only dispatch job, no processing
+    const result = await this.pdfQueueService.generateInvoicePdf(
+      id,
+      requestedBy,
+      'download',
+    );
+
+    return {
+      message: 'PDF generation started',
+      jobId: result.jobId,
+      statusUrl: `/invoices/${id}/pdf/status/${result.jobId}`,
+    };
+  }
+
+  @Get(':id/pdf/status/:jobId')
+  async getPdfStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('jobId') jobId: string,
+  ) {
+    return this.pdfQueueService.getPdfJobStatus(jobId);
   }
 
   @Put()

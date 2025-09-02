@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Seeder } from '@jorgebodega/typeorm-seeding';
 import { faker } from '@faker-js/faker';
-import { Lead } from 'src/leads/entities/lead.entity';
+import { Lead } from 'src/modules/leads/domain/entities/lead.entity';
 import { Client } from 'src/clients/entities/client.entity';
 import { User } from 'src/users/entities/user.entity';
 

@@ -65,6 +65,7 @@ export class PaymentsService {
   }
 
   async update(
+    id: number,
     payment: UpdatePaymentBodyDto,
   ): Promise<UpdatePaymentResponseDto> {
     try {
