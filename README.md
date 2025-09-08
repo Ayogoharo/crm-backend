@@ -40,6 +40,13 @@ Follow these step-by-step instructions to install and run the application:
    POSTGRES_PASSWORD=your_postgres_password
    POSTGRES_DB=postgres_db_name
 
+   # Test Database Configuration
+   TEST_POSTGRES_HOST=localhost
+   TEST_POSTGRES_PORT=5433
+   TEST_POSTGRES_USER=your_postgres_user
+   TEST_POSTGRES_PASSWORD=your_test_postgres_password
+   TEST_POSTGRES_DB=postgres_test_db_name
+
    # Redis Configuration
    REDIS_PASSWORD=your_redis_password
 
@@ -53,6 +60,8 @@ Follow these step-by-step instructions to install and run the application:
    docker-compose up -d
    ```
 
+   This will start both the main PostgreSQL database (port 5432) and test PostgreSQL database (port 5433).
+
 5. **Build the application**
 
    ```bash
@@ -61,11 +70,39 @@ Follow these step-by-step instructions to install and run the application:
 
 6. **Run database migrations**
 
+   For main database:
    ```bash
-   npx typeorm migration:run -d ./dist/data-source.js
+   npm run migrate:main
    ```
 
-7. **Start the application**
+   For test database:
+   ```bash
+   npm run migrate:test
+   ```
+
+   Or run migrations on both databases:
+   ```bash
+   npm run migrate:both
+   ```
+
+7. **Seed databases (optional)**
+
+   For main database:
+   ```bash
+   npm run seed
+   ```
+
+   For test database:
+   ```bash
+   npm run seed:test
+   ```
+
+   Or seed both databases:
+   ```bash
+   npm run seed:both
+   ```
+
+8. **Start the application**
    ```bash
    # Development mode only
    npm run start:dev
