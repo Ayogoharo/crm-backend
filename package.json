@@ -17,6 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:integration": "jest --config jest.integration.config.js --runInBand",
+    "test:integration:watch": "jest --config jest.integration.config.js --runInBand --watch",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed": "ts-node -r tsconfig-paths/register src/database/seeds/run-seeds.ts",
     "seed:test": "ts-node -r tsconfig-paths/register src/database/seeds/run-test-seeds.ts",
@@ -87,7 +89,9 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/$1"
-    }
+      "^src/(.*)$": "<rootDir>/$1",
+      "^migrations/(.*)$": "<rootDir>/../migrations/$1"
+    },
+    "preset": "ts-jest"
   }
 }
