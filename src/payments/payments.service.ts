@@ -58,6 +58,9 @@ export class PaymentsService {
       }
       return payment;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error finding payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
@@ -78,6 +81,9 @@ export class PaymentsService {
       await this.paymentRepository.update(payment.id, payment);
       return this.findById(payment.id);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error updating payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
@@ -92,6 +98,9 @@ export class PaymentsService {
       }
       await this.paymentRepository.remove(existingPayment);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error deleting payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );

@@ -11,23 +11,41 @@ import { Lead } from 'src/modules/leads/domain/entities/lead.entity';
 
 // Load environment variables
 config();
-export const AppDataSource = new DataSource({
-  type: 'postgres',
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: process.env.POSTGRES_PORT ? parseInt(process.env.POSTGRES_PORT) : 5432,
-  username: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'password',
-  database: process.env.POSTGRES_DB || 'crm_db',
-  synchronize: process.env.NODE_ENV !== 'production',
-  logging: process.env.NODE_ENV === 'development',
-  entities: [User, Client, Lead, Invoice, InvoiceItem, Payment],
-  migrations: [
-    InitialMigration1756396888643,
-    RenamePasswordHashToPassword1756398000000,
-  ],
-  migrationsTableName: 'migrations',
-  ssl:
-    process.env.NODE_ENV === 'production'
-      ? { rejectUnauthorized: false }
-      : false,
-});
+
+// Function to create data source with dynamic configuration
+export const createDataSource = (useTestDb = false) => {
+  const prefix = useTestDb ? 'TEST_' : '';
+
+  return new DataSource({
+    type: 'postgres',
+    host: process.env[`${prefix}POSTGRES_HOST`] || 'localhost',
+    port: process.env[`${prefix}POSTGRES_PORT`]
+      ? parseInt(`${process.env[`${prefix}POSTGRES_PORT`]}`)
+      : useTestDb
+        ? 5433
+        : 5432,
+    username: process.env[`${prefix}POSTGRES_USER`] || 'postgres',
+    password: process.env[`${prefix}POSTGRES_PASSWORD`] || 'password',
+    database:
+      process.env[`${prefix}POSTGRES_DB`] ||
+      (useTestDb ? 'crm_test_db' : 'crm_db'),
+    synchronize: process.env.NODE_ENV !== 'production',
+    logging: process.env.NODE_ENV === 'development',
+    entities: [User, Client, Lead, Invoice, InvoiceItem, Payment],
+    migrations: [
+      InitialMigration1756396888643,
+      RenamePasswordHashToPassword1756398000000,
+    ],
+    migrationsTableName: 'migrations',
+    ssl:
+      process.env.NODE_ENV === 'production'
+        ? { rejectUnauthorized: false }
+        : false,
+  });
+};
+
+// Default data source for main database
+export const AppDataSource = createDataSource(false);
+
+// Test data source
+export const TestDataSource = createDataSource(true);

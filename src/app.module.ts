@@ -6,6 +6,7 @@ import { ClientsModule } from './clients/clients.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { InvoicesModule } from './invoices/invoices.module';
 import { QueuesModule } from './queues/queues.module';
+import { MailModule } from './mail/mail.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
@@ -21,6 +22,7 @@ import { BullModule } from '@nestjs/bull';
       },
     }),
     QueuesModule,
+    MailModule,
     UsersModule,
     ClientsModule,
     LeadsModule,

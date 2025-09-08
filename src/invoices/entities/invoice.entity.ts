@@ -1,6 +1,5 @@
 import { Client } from 'src/clients/entities/client.entity';
 import { InvoiceItem } from 'src/invoice-items/entities/invoice-item.entity';
-import { Payment } from 'src/payments/entities/payment.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -63,6 +62,6 @@ export class Invoice {
   @OneToMany(() => InvoiceItem, (invoiceItem) => invoiceItem.invoice)
   invoiceItems: InvoiceItem[];
 
-  @OneToMany(() => Payment, (payment) => payment.invoice)
-  payments: Payment[];
+  @OneToMany('Payment', 'invoice')
+  payments: any[];
 }

@@ -6,7 +6,6 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Invoice } from 'src/invoices/entities/invoice.entity';
 import { User } from 'src/users/entities/user.entity';
 
 @Entity('payments')
@@ -43,11 +42,11 @@ export class Payment {
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
-  @ManyToOne(() => Invoice, (invoice) => invoice.payments, {
+  @ManyToOne('Invoice', 'payments', {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'invoice_id' })
-  invoice: Invoice;
+  invoice: any;
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'recorded_by' })
