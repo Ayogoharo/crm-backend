@@ -66,6 +66,9 @@ export class ClientsService {
       }
       return client;
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error finding client: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
@@ -86,6 +89,9 @@ export class ClientsService {
       await this.clientRepository.update(client.id, client);
       return this.findById(client.id);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error updating client: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
@@ -100,6 +106,9 @@ export class ClientsService {
       }
       await this.clientRepository.remove(existingClient);
     } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error deleting client: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );

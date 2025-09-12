@@ -8,6 +8,7 @@ import { TestModuleHelper } from './test-utils/test-module.helper';
 import { ClientTestDataFactory } from './test-utils/client-test-data.factory';
 import { CreateClientBodyDto } from './dto/create-client-body.dto';
 import { UpdateClientBodyDto } from './dto/update-client-body.dto';
+import { User } from 'src/users/entities/user.entity';
 
 describe('ClientsService Integration Tests', () => {
   let service: ClientsService;
@@ -320,8 +321,20 @@ describe('ClientsService Integration Tests', () => {
 
   describe('getClientInvoiceTotal Operations', () => {
     let testClientId: number;
+    let testUser: User;
 
     beforeEach(async () => {
+      // Create a user to act as the invoice issuer
+      const userRepository =
+        TestDatabaseHelper.getDataSource().getRepository(User);
+      testUser = await userRepository.save({
+        email: 'test-issuer@example.com',
+        username: 'test-issuer',
+        password: 'password',
+        fullName: 'Test Issuer',
+        role: 'admin',
+      });
+
       const clientData = ClientTestDataFactory.createValidClientData();
       const result = await service.create(clientData);
       testClientId = result.id;
@@ -350,9 +363,9 @@ describe('ClientsService Integration Tests', () => {
       // Create an invoice for the client directly in the database
       const invoiceData = {
         client: { id: testClientId },
-        issuedBy: { id: 1 }, // Assuming user with ID 1 exists
+        issuedBy: { id: testUser.id }, // Assuming user with ID 1 exists
         invoiceNumber: 'INV-001',
-        issueDate: new Date(),
+        invoiceDate: new Date(),
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
         status: 'pending',
         totalAmount: 1500.0,
@@ -377,9 +390,9 @@ describe('ClientsService Integration Tests', () => {
       const invoicesData = [
         {
           client: { id: testClientId },
-          issuedBy: { id: 1 },
+          issuedBy: { id: testUser.id },
           invoiceNumber: 'INV-001',
-          issueDate: new Date(),
+          invoiceDate: new Date(),
           dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           status: 'pending',
           totalAmount: 1000.0,
@@ -387,9 +400,9 @@ describe('ClientsService Integration Tests', () => {
         },
         {
           client: { id: testClientId },
-          issuedBy: { id: 1 },
+          issuedBy: { id: testUser.id },
           invoiceNumber: 'INV-002',
-          issueDate: new Date(),
+          invoiceDate: new Date(),
           dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           status: 'paid',
           totalAmount: 2500.5,
@@ -397,9 +410,9 @@ describe('ClientsService Integration Tests', () => {
         },
         {
           client: { id: testClientId },
-          issuedBy: { id: 1 },
+          issuedBy: { id: testUser.id },
           invoiceNumber: 'INV-003',
-          issueDate: new Date(),
+          invoiceDate: new Date(),
           dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           status: 'overdue',
           totalAmount: 750.25,
@@ -423,9 +436,9 @@ describe('ClientsService Integration Tests', () => {
 
       const invoiceData = {
         client: { id: testClientId },
-        issuedBy: { id: 1 },
+        issuedBy: { id: testUser.id },
         invoiceNumber: 'INV-DECIMAL',
-        issueDate: new Date(),
+        invoiceDate: new Date(),
         dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         status: 'pending',
         totalAmount: 123.456789, // Test decimal precision

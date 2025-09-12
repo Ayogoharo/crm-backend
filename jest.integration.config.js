@@ -1,5 +1,11 @@
-module.exports = {
-  preset: 'ts-jest',
+export default {
+  preset: 'ts-jest/presets/default-esm',
+  extensionsToTreatAsEsm: ['.ts'],
+  globals: {
+    'ts-jest': {
+      useESM: true,
+    },
+  },
   testEnvironment: 'node',
   rootDir: 'src',
   testRegex: '.*\\.integration\\.spec\\.ts$',
@@ -7,7 +13,7 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  transformIgnorePatterns: ['node_modules/(?!@faker-js/faker)'],
+  transformIgnorePatterns: ['node_modules/(?!(@faker-js/faker)/)'],
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   moduleNameMapper: {
@@ -15,6 +21,4 @@ module.exports = {
     '^migrations/(.*)$': '<rootDir>/../migrations/$1',
   },
   setupFilesAfterEnv: [],
-  testTimeout: 30000,
-  maxWorkers: 1,
 };
