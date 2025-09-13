@@ -5,14 +5,14 @@ import {
   NotFoundException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { PaymentsService } from './payments.service';
-import { Payment } from './entities/payment.entity';
+import { PaymentsService } from '../../../src/payments/payments.service';
+import { Payment } from '../../../src/payments/entities/payment.entity';
 import {
   mockPayment,
   mockCreatePaymentDto,
   mockUpdatePaymentDto,
   mockRecordedByUser,
-} from './__mocks__/payment-test-data';
+} from '../../mocks/payment-test-data';
 
 describe('PaymentsService', () => {
   let service: PaymentsService;

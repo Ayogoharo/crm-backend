@@ -17,6 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:unit": "jest --testPathPatterns=test/unit",
+    "test:unit:watch": "jest --testPathPatterns=test/unit --watch",
     "test:integration": "jest --config jest.integration.config.js --runInBand",
     "test:integration:watch": "jest --config jest.integration.config.js --runInBand --watch",
     "test:e2e": "jest --config ./test/jest-e2e.json",
@@ -78,8 +80,11 @@
       "json",
       "ts"
     ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
+    "rootDir": ".",
+    "testMatch": [
+      "<rootDir>/src/**/*.spec.ts",
+      "<rootDir>/test/unit/**/*.spec.ts"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
@@ -92,8 +97,8 @@
       "node_modules/(?!(@faker-js/faker)/)"
     ],
     "moduleNameMapper": {
-      "^src/(.*)$": "<rootDir>/$1",
-      "^migrations/(.*)$": "<rootDir>/../migrations/$1"
+      "^src/(.*)$": "<rootDir>/src/$1",
+      "^migrations/(.*)$": "<rootDir>/migrations/$1"
     },
     "preset": "ts-jest"
   }

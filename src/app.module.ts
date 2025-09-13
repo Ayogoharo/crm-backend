@@ -5,6 +5,8 @@ import { UsersModule } from './users/users.module';
 import { ClientsModule } from './clients/clients.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { InvoicesModule } from './invoices/invoices.module';
+import { InvoiceItemsModule } from './invoice-items/invoice-items.module';
+import { PaymentsModule } from './payments/payments.module';
 import { QueuesModule } from './queues/queues.module';
 import { MailModule } from './mail/mail.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -27,6 +29,8 @@ import { BullModule } from '@nestjs/bull';
     ClientsModule,
     LeadsModule,
     InvoicesModule,
+    InvoiceItemsModule,
+    PaymentsModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',

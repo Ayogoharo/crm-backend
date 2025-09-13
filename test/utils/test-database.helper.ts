@@ -1,5 +1,5 @@
 import { DataSource, QueryRunner } from 'typeorm';
-import { TestDataSource } from '../../../data-source';
+import { TestDataSource } from '../../data-source';
 
 export class TestDatabaseHelper {
   private static dataSource: DataSource;

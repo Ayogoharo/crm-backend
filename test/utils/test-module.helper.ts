@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ClientsService } from '../clients.service';
-import { Client } from '../entities/client.entity';
-import { Lead } from 'src/modules/leads/domain/entities/lead.entity';
-import { Invoice } from 'src/invoices/entities/invoice.entity';
-import { InvoiceItem } from 'src/invoice-items/entities/invoice-item.entity';
-import { Payment } from 'src/payments/entities/payment.entity';
-import { User } from 'src/users/entities/user.entity';
+import { ClientsService } from '../../src/clients/clients.service';
+import { Client } from '../../src/clients/entities/client.entity';
+import { Lead } from '../../src/modules/leads/domain/entities/lead.entity';
+import { Invoice } from '../../src/invoices/entities/invoice.entity';
+import { InvoiceItem } from '../../src/invoice-items/entities/invoice-item.entity';
+import { Payment } from '../../src/payments/entities/payment.entity';
+import { User } from '../../src/users/entities/user.entity';
 
 export class TestModuleHelper {
   /**

@@ -3,50 +3,46 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
-import { AppModule } from '../src/app.module';
-import { TestDatabaseHelper } from '../src/clients/test-utils/test-database.helper';
-import { Client } from 'src/clients/entities/client.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Invoice } from 'src/invoices/entities/invoice.entity';
-import { InvoiceItem } from 'src/invoice-items/entities/invoice-item.entity';
-import { InvoiceTestDataFactory } from 'src/invoices/test-utils/invoice-test-data.factory';
-import { InvoiceItemTestDataFactory } from 'src/invoice-items/test-utils/invoice-item-test-data.factory';
+import { TestAppModule } from '../utils/test-app.module';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Client } from '../../src/clients/entities/client.entity';
+import { User } from '../../src/users/entities/user.entity';
+import { Invoice } from '../../src/invoices/entities/invoice.entity';
+import { InvoiceItem } from '../../src/invoice-items/entities/invoice-item.entity';
+import { InvoiceTestDataFactory } from '../../src/invoices/test-utils/invoice-test-data.factory';
+import { InvoiceItemTestDataFactory } from '../../src/invoice-items/test-utils/invoice-item-test-data.factory';
 
 describe('InvoiceItemsController (e2e)', () => {
   let app: INestApplication<App>;
 
-  beforeAll(async () => {
-    await TestDatabaseHelper.initializeTestDatabase();
-  });
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [TestAppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
-
-    await TestDatabaseHelper.cleanDatabase();
   });
 
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
-  afterAll(async () => {
-    await TestDatabaseHelper.closeTestDatabase();
-  });
-
-    describe('/invoice-items (POST)', () => {
+  describe('/invoice-items (POST)', () => {
     it('should create a new invoice item and return its ID', async () => {
       // Arrange: Create a client, user, and invoice
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
@@ -63,9 +59,10 @@ describe('InvoiceItemsController (e2e)', () => {
         }),
       );
 
-      const invoiceItemData = InvoiceItemTestDataFactory.createValidInvoiceItemData({
-        invoiceId: invoice.id,
-      });
+      const invoiceItemData =
+        InvoiceItemTestDataFactory.createValidInvoiceItemData({
+          invoiceId: invoice.id,
+        });
 
       // Act
       const response = await request(app.getHttpServer())
@@ -77,7 +74,9 @@ describe('InvoiceItemsController (e2e)', () => {
       expect(response.body).toHaveProperty('id');
       const { id: invoiceItemId } = response.body as { id: number };
 
-      const invoiceItemRepository = dataSource.getRepository(InvoiceItem);
+      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
+        getRepositoryToken(InvoiceItem),
+      );
       const savedItem = await invoiceItemRepository.findOneBy({
         id: invoiceItemId,
       });
@@ -92,12 +91,16 @@ describe('InvoiceItemsController (e2e)', () => {
     let invoice: Invoice;
 
     beforeEach(async () => {
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
@@ -114,7 +117,9 @@ describe('InvoiceItemsController (e2e)', () => {
         }),
       );
 
-      const invoiceItemRepository = dataSource.getRepository(InvoiceItem);
+      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
+        getRepositoryToken(InvoiceItem),
+      );
       await invoiceItemRepository.save(
         InvoiceItemTestDataFactory.createValidInvoiceItemData({
           invoiceId: invoice.id,
@@ -138,8 +143,10 @@ describe('InvoiceItemsController (e2e)', () => {
     });
 
     it('should return a single invoice item by ID', async () => {
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const invoiceItemRepository = dataSource.getRepository(InvoiceItem);
+      // Get repositories from the app module
+      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
+        getRepositoryToken(InvoiceItem),
+      );
       const item = await invoiceItemRepository.save(
         InvoiceItemTestDataFactory.createValidInvoiceItemData({
           invoiceId: invoice.id,
@@ -168,14 +175,19 @@ describe('InvoiceItemsController (e2e)', () => {
     let invoiceItem: InvoiceItem;
 
     beforeEach(async () => {
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
-      const invoiceItemRepository: Repository<InvoiceItem> =
-        dataSource.getRepository(InvoiceItem);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
+      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
+        getRepositoryToken(InvoiceItem),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
@@ -205,8 +217,8 @@ describe('InvoiceItemsController (e2e)', () => {
         id: invoiceItem.id,
         quantity: 10,
         description: 'Updated Description',
-        unitPrice: invoiceItem.unitPrice,
-        lineTotal: invoiceItem.lineTotal,
+        unitPrice: 50.0,
+        lineTotal: 500.0,
         invoiceId: invoice.id,
       };
 
@@ -215,8 +227,9 @@ describe('InvoiceItemsController (e2e)', () => {
         .send(updateData)
         .expect(200);
 
-      const invoiceItemRepository: Repository<InvoiceItem> =
-        TestDatabaseHelper.getDataSource().getRepository(InvoiceItem);
+      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
+        getRepositoryToken(InvoiceItem),
+      );
       const updatedItem = await invoiceItemRepository.findOneBy({
         id: invoiceItem.id,
       });
@@ -229,14 +242,19 @@ describe('InvoiceItemsController (e2e)', () => {
 
   describe('/invoice-items (DELETE)', () => {
     it('should delete an existing invoice item', async () => {
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
-      const invoiceItemRepository: Repository<InvoiceItem> =
-        dataSource.getRepository(InvoiceItem);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
+      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
+        getRepositoryToken(InvoiceItem),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
@@ -262,7 +280,9 @@ describe('InvoiceItemsController (e2e)', () => {
         .delete(`/invoice-items/${item.id}`)
         .expect(200);
 
-      const deletedItem = await invoiceItemRepository.findOneBy({ id: item.id });
+      const deletedItem = await invoiceItemRepository.findOneBy({
+        id: item.id,
+      });
       expect(deletedItem).toBeNull();
     });
 

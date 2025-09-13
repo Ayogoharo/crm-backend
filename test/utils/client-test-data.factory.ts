@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { CreateClientBodyDto } from '../dto/create-client-body.dto';
-import { UpdateClientBodyDto } from '../dto/update-client-body.dto';
-import { Client } from '../entities/client.entity';
+import { CreateClientBodyDto } from '../../src/clients/dto/create-client-body.dto';
+import { UpdateClientBodyDto } from '../../src/clients/dto/update-client-body.dto';
+import { Client } from '../../src/clients/entities/client.entity';
 
 export class ClientTestDataFactory {
   /**

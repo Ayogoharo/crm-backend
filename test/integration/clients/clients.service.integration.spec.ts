@@ -1,14 +1,14 @@
 import { TestingModule } from '@nestjs/testing';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { ClientsService } from './clients.service';
-import { Client } from './entities/client.entity';
-import { TestDatabaseHelper } from './test-utils/test-database.helper';
-import { TestModuleHelper } from './test-utils/test-module.helper';
-import { ClientTestDataFactory } from './test-utils/client-test-data.factory';
-import { CreateClientBodyDto } from './dto/create-client-body.dto';
-import { UpdateClientBodyDto } from './dto/update-client-body.dto';
-import { User } from 'src/users/entities/user.entity';
+import { ClientsService } from '../../../src/clients/clients.service';
+import { Client } from '../../../src/clients/entities/client.entity';
+import { TestDatabaseHelper } from '../../utils/test-database.helper';
+import { TestModuleHelper } from '../../utils/test-module.helper';
+import { ClientTestDataFactory } from '../../utils/client-test-data.factory';
+import { CreateClientBodyDto } from '../../../src/clients/dto/create-client-body.dto';
+import { UpdateClientBodyDto } from '../../../src/clients/dto/update-client-body.dto';
+import { User } from '../../../src/users/entities/user.entity';
 
 describe('ClientsService Integration Tests', () => {
   let service: ClientsService;

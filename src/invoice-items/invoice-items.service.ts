@@ -58,6 +58,10 @@ export class InvoiceItemsService {
       }
       return invoiceItem;
     } catch (error) {
+      // Re-throw NotFoundException as-is, wrap other errors
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error finding invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
@@ -70,16 +74,20 @@ export class InvoiceItemsService {
   ): Promise<UpdateInvoiceItemResponseDto> {
     try {
       const existingInvoiceItem = await this.invoiceItemRepository.findOneBy({
-        id: invoiceItem.id,
+        id: id,
       });
       if (!existingInvoiceItem || existingInvoiceItem === null) {
         throw new NotFoundException(
-          `Invoice item with ID ${invoiceItem.id} not found`,
+          `Invoice item with ID ${id} not found`,
         );
       }
-      await this.invoiceItemRepository.update(invoiceItem.id, invoiceItem);
-      return this.findById(invoiceItem.id);
+      await this.invoiceItemRepository.update(id, invoiceItem);
+      return this.findById(id);
     } catch (error) {
+      // Re-throw NotFoundException as-is, wrap other errors
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error updating invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
@@ -96,6 +104,10 @@ export class InvoiceItemsService {
       }
       await this.invoiceItemRepository.remove(existingInvoiceItem);
     } catch (error) {
+      // Re-throw NotFoundException as-is, wrap other errors
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error deleting invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );

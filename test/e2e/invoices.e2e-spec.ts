@@ -3,46 +3,40 @@ import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
-import { AppModule } from '../src/app.module';
-import { TestDatabaseHelper } from '../src/clients/test-utils/test-database.helper';
-import { InvoiceTestDataFactory } from '../src/invoices/test-utils/invoice-test-data.factory';
-import { Client } from 'src/clients/entities/client.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Invoice } from 'src/invoices/entities/invoice.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { TestAppModule } from '../utils/test-app.module';
+import { InvoiceTestDataFactory } from '../../src/invoices/test-utils/invoice-test-data.factory';
+import { Client } from '../../src/clients/entities/client.entity';
+import { User } from '../../src/users/entities/user.entity';
+import { Invoice } from '../../src/invoices/entities/invoice.entity';
 
 describe('InvoicesController (e2e)', () => {
   let app: INestApplication<App>;
 
-  beforeAll(async () => {
-    await TestDatabaseHelper.initializeTestDatabase();
-  });
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [TestAppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
-
-    await TestDatabaseHelper.cleanDatabase();
   });
 
   afterEach(async () => {
-    await app.close();
-  });
-
-  afterAll(async () => {
-    await TestDatabaseHelper.closeTestDatabase();
+    if (app) {
+      await app.close();
+    }
   });
 
   describe('/invoices (POST)', () => {
     it('should create a new invoice and return its ID', async () => {
       // Arrange: Create a client and a user to associate with the invoice
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
 
       const client = await clientRepository.save({
         name: 'Test Client for Invoice',
@@ -71,8 +65,9 @@ describe('InvoicesController (e2e)', () => {
       expect(response.body).toHaveProperty('id');
       const { id: invoiceId } = response.body as { id: number };
 
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
       const savedInvoice = await invoiceRepository.findOneBy({ id: invoiceId });
 
       expect(savedInvoice).not.toBeNull();
@@ -85,12 +80,16 @@ describe('InvoicesController (e2e)', () => {
   describe('/invoices (GET)', () => {
     it('should return a list of all invoices', async () => {
       // Arrange: Create a client, a user, and some invoices
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
@@ -127,12 +126,16 @@ describe('InvoicesController (e2e)', () => {
 
     it('should return a single invoice by ID', async () => {
       // Arrange
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
@@ -171,12 +174,16 @@ describe('InvoicesController (e2e)', () => {
   describe('/invoices (PUT)', () => {
     it('should update an existing invoice', async () => {
       // Arrange
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
@@ -220,12 +227,16 @@ describe('InvoicesController (e2e)', () => {
   describe('/invoices (DELETE)', () => {
     it('should delete an existing invoice', async () => {
       // Arrange
-      const dataSource = TestDatabaseHelper.getDataSource();
-      const clientRepository: Repository<Client> =
-        dataSource.getRepository(Client);
-      const userRepository: Repository<User> = dataSource.getRepository(User);
-      const invoiceRepository: Repository<Invoice> =
-        dataSource.getRepository(Invoice);
+      // Get repositories from the app module
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({

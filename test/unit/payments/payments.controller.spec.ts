@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PaymentsController } from './payments.controller';
-import { PaymentsService } from './payments.service';
-import { CreatePaymentBodyDto } from './dto/create-payment-body.dto';
-import { UpdatePaymentBodyDto } from './dto/update-payment-body.dto';
+import { PaymentsController } from '../../../src/payments/payments.controller';
+import { PaymentsService } from '../../../src/payments/payments.service';
+import { CreatePaymentBodyDto } from '../../../src/payments/dto/create-payment-body.dto';
+import { UpdatePaymentBodyDto } from '../../../src/payments/dto/update-payment-body.dto';
 import {
   mockCreatePaymentDto,
   mockPayment,
   mockUpdatePaymentDto,
-} from './__mocks__/payment-test-data';
+} from '../../mocks/payment-test-data';
 
 describe('PaymentsController', () => {
   let controller: PaymentsController;

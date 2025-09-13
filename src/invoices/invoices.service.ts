@@ -59,6 +59,10 @@ export class InvoicesService {
       }
       return invoice;
     } catch (error) {
+      // Re-throw NotFoundException as-is, wrap other errors
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error finding invoice: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
@@ -133,6 +137,10 @@ export class InvoicesService {
       }
       await this.invoiceRepository.remove(existingInvoice);
     } catch (error) {
+      // Re-throw NotFoundException as-is, wrap other errors
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(
         `Error deleting invoice: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );

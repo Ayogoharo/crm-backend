@@ -7,8 +7,8 @@ export default {
     },
   },
   testEnvironment: 'node',
-  rootDir: 'src',
-  testRegex: '.*\\.integration\\.spec\\.ts$',
+  rootDir: '.',
+  testRegex: 'test/integration/.*\\.spec\\.ts$',
   moduleFileExtensions: ['js', 'json', 'ts'],
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
@@ -17,8 +17,8 @@ export default {
   collectCoverageFrom: ['**/*.(t|j)s'],
   coverageDirectory: '../coverage',
   moduleNameMapper: {
-    '^src/(.*)$': '<rootDir>/$1',
-    '^migrations/(.*)$': '<rootDir>/../migrations/$1',
+    '^src/(.*)$': '<rootDir>/src/$1',
+    '^migrations/(.*)$': '<rootDir>/migrations/$1',
   },
   setupFilesAfterEnv: [],
 };
