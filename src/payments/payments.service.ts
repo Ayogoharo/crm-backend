@@ -12,12 +12,14 @@ import { FindAllPaymentsResponseDto } from './dto/find-all-payments-response.dto
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdatePaymentBodyDto } from './dto/update-payment-body.dto';
 import { UpdatePaymentResponseDto } from './dto/update-payment-response.dto';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @InjectRepository(Payment)
     private readonly paymentRepository: Repository<Payment>,
+    private readonly metricsService: MetricsService,
   ) {}
 
   async create(
@@ -26,6 +28,9 @@ export class PaymentsService {
     try {
       const payment = this.paymentRepository.create(paymentData);
       const newPayment = await this.paymentRepository.save(payment);
+      this.metricsService.incrementPaymentsReceived(
+        newPayment.invoiceId.toString(),
+      );
       return { id: newPayment.id };
     } catch (error) {
       throw new InternalServerErrorException(

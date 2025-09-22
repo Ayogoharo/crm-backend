@@ -9,13 +9,23 @@ import { InvoiceItemsModule } from './invoice-items/invoice-items.module';
 import { PaymentsModule } from './payments/payments.module';
 import { QueuesModule } from './queues/queues.module';
 import { MailModule } from './mail/mail.module';
+import { MetricsModule } from './metrics/metrics.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
+import { LoggerModule } from 'nestjs-pino';
+import { getLoggerConfig } from './config/logger.config';
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    PrometheusModule.register(),
+    LoggerModule.forRoot({
+      pinoHttp: getLoggerConfig(),
+    }),
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST || 'localhost',
@@ -25,6 +35,7 @@ import { BullModule } from '@nestjs/bull';
     }),
     QueuesModule,
     MailModule,
+    MetricsModule,
     UsersModule,
     ClientsModule,
     LeadsModule,
@@ -43,6 +54,12 @@ import { BullModule } from '@nestjs/bull';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MetricsInterceptor,
+    },
+  ],
 })
 export class AppModule {}

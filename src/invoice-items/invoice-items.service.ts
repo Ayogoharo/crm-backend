@@ -77,11 +77,11 @@ export class InvoiceItemsService {
         id: id,
       });
       if (!existingInvoiceItem || existingInvoiceItem === null) {
-        throw new NotFoundException(
-          `Invoice item with ID ${id} not found`,
-        );
+        throw new NotFoundException(`Invoice item with ID ${id} not found`);
       }
-      await this.invoiceItemRepository.update(id, invoiceItem);
+      // Remove id from update data to avoid conflicts
+      const { id: _, ...updateData } = invoiceItem;
+      await this.invoiceItemRepository.update(id, updateData);
       return this.findById(id);
     } catch (error) {
       // Re-throw NotFoundException as-is, wrap other errors

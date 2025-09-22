@@ -13,12 +13,14 @@ import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateInvoiceBodyDto } from './dto/update-invoice-body.dto';
 import { UpdateInvoiceResponseDto } from './dto/update-invoice-response.dto';
 import { FilterInvoicesQueryDto } from './dto/filter-invoices-query.dto';
+import { MetricsService } from '../metrics/metrics.service';
 
 @Injectable()
 export class InvoicesService {
   constructor(
     @InjectRepository(Invoice)
     private readonly invoiceRepository: Repository<Invoice>,
+    private readonly metricsService: MetricsService,
   ) {}
 
   async create(
@@ -27,6 +29,9 @@ export class InvoicesService {
     try {
       const invoice = this.invoiceRepository.create(invoiceData);
       const newInvoice = await this.invoiceRepository.save(invoice);
+      this.metricsService.incrementInvoicesCreated(
+        newInvoice.clientId.toString(),
+      );
       return { id: newInvoice.id };
     } catch (error) {
       throw new InternalServerErrorException(

@@ -13,10 +13,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { BullModule } from '@nestjs/bull';
 import { TestDataSource } from '../../data-source';
+import { TestLoggerModule } from './test-logger.setup';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    TestLoggerModule,
     BullModule.forRoot({
       redis: {
         host: process.env.REDIS_HOST || 'localhost',

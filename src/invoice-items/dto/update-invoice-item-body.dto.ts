@@ -3,6 +3,7 @@ import { IsNumber, IsString, IsOptional } from 'class-validator';
 
 export class UpdateInvoiceItemBodyDto {
   @ApiProperty()
+  @IsNumber()
   id: number;
 
   @ApiProperty({ required: false })

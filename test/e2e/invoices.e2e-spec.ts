@@ -1,25 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TestAppModule } from '../utils/test-app.module';
 import { InvoiceTestDataFactory } from '../../src/invoices/test-utils/invoice-test-data.factory';
 import { Client } from '../../src/clients/entities/client.entity';
 import { User } from '../../src/users/entities/user.entity';
 import { Invoice } from '../../src/invoices/entities/invoice.entity';
+import { createTestApp } from '../utils/test-app-setup.helper';
 
 describe('InvoicesController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [TestAppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    app = await createTestApp();
   });
 
   afterEach(async () => {

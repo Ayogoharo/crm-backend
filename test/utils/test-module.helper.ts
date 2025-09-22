@@ -8,6 +8,7 @@ import { Invoice } from '../../src/invoices/entities/invoice.entity';
 import { InvoiceItem } from '../../src/invoice-items/entities/invoice-item.entity';
 import { Payment } from '../../src/payments/entities/payment.entity';
 import { User } from '../../src/users/entities/user.entity';
+import { UnitTestLoggerModule } from './test-logger.setup';
 
 export class TestModuleHelper {
   /**
@@ -20,6 +21,7 @@ export class TestModuleHelper {
   }> {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
+        UnitTestLoggerModule,
         TypeOrmModule.forRoot({
           type: 'postgres',
           host: process.env.TEST_POSTGRES_HOST || 'localhost',

@@ -1,9 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { App } from 'supertest/types';
 import { Repository } from 'typeorm';
-import { TestAppModule } from '../utils/test-app.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Client } from '../../src/clients/entities/client.entity';
 import { User } from '../../src/users/entities/user.entity';
@@ -11,17 +9,13 @@ import { Invoice } from '../../src/invoices/entities/invoice.entity';
 import { InvoiceItem } from '../../src/invoice-items/entities/invoice-item.entity';
 import { InvoiceTestDataFactory } from '../../src/invoices/test-utils/invoice-test-data.factory';
 import { InvoiceItemTestDataFactory } from '../../src/invoice-items/test-utils/invoice-item-test-data.factory';
+import { createTestApp } from '../utils/test-app-setup.helper';
 
 describe('InvoiceItemsController (e2e)', () => {
   let app: INestApplication<App>;
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [TestAppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
+    app = await createTestApp();
   });
 
   afterEach(async () => {
@@ -46,8 +40,8 @@ describe('InvoiceItemsController (e2e)', () => {
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
+        email: `test-${Date.now()}-${Math.random()}@example.com`,
+        username: `testuser-${Date.now()}-${Math.random()}`,
         password: 'password',
         fullName: 'Test User',
         role: 'admin',
@@ -104,8 +98,8 @@ describe('InvoiceItemsController (e2e)', () => {
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
+        email: `test-${Date.now()}-${Math.random()}@example.com`,
+        username: `testuser-${Date.now()}-${Math.random()}`,
         password: 'password',
         fullName: 'Test User',
         role: 'admin',
@@ -191,8 +185,8 @@ describe('InvoiceItemsController (e2e)', () => {
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
+        email: `test-${Date.now()}-${Math.random()}@example.com`,
+        username: `testuser-${Date.now()}-${Math.random()}`,
         password: 'password',
         fullName: 'Test User',
         role: 'admin',
@@ -213,6 +207,42 @@ describe('InvoiceItemsController (e2e)', () => {
     });
 
     it('should update an existing invoice item', async () => {
+      // Create fresh test data for this test
+      const clientRepository = app.get<Repository<Client>>(
+        getRepositoryToken(Client),
+      );
+      const userRepository = app.get<Repository<User>>(
+        getRepositoryToken(User),
+      );
+      const invoiceRepository = app.get<Repository<Invoice>>(
+        getRepositoryToken(Invoice),
+      );
+      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
+        getRepositoryToken(InvoiceItem),
+      );
+
+      const client = await clientRepository.save({ name: 'Test Client' });
+      const user = await userRepository.save({
+        email: `test-${Date.now()}-${Math.random()}@example.com`,
+        username: `testuser-${Date.now()}-${Math.random()}`,
+        password: 'password',
+        fullName: 'Test User',
+        role: 'admin',
+      });
+      const invoice = await invoiceRepository.save(
+        InvoiceTestDataFactory.createValidInvoiceData({
+          clientId: client.id,
+          issuedBy: user.id,
+        }),
+      );
+      const invoiceItem = await invoiceItemRepository.save(
+        InvoiceItemTestDataFactory.createValidInvoiceItemData({
+          invoiceId: invoice.id,
+          quantity: 1,
+          description: 'Original Description',
+        }),
+      );
+
       const updateData = {
         id: invoiceItem.id,
         quantity: 10,
@@ -227,9 +257,6 @@ describe('InvoiceItemsController (e2e)', () => {
         .send(updateData)
         .expect(200);
 
-      const invoiceItemRepository = app.get<Repository<InvoiceItem>>(
-        getRepositoryToken(InvoiceItem),
-      );
       const updatedItem = await invoiceItemRepository.findOneBy({
         id: invoiceItem.id,
       });
@@ -258,8 +285,8 @@ describe('InvoiceItemsController (e2e)', () => {
 
       const client = await clientRepository.save({ name: 'Test Client' });
       const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
+        email: `test-${Date.now()}-${Math.random()}@example.com`,
+        username: `testuser-${Date.now()}-${Math.random()}`,
         password: 'password',
         fullName: 'Test User',
         role: 'admin',

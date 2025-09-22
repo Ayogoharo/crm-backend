@@ -20,5 +20,5 @@ export default {
     '^src/(.*)$': '<rootDir>/src/$1',
     '^migrations/(.*)$': '<rootDir>/migrations/$1',
   },
-  setupFilesAfterEnv: [],
+  setupFilesAfterEnv: ['<rootDir>/test/setup/jest.setup.ts'],
 };
