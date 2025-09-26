@@ -11,6 +11,7 @@ import { CreateInvoiceResponseDto } from './dto/create-invoice-response.dto';
 import { FindAllInvoicesResponseDto } from './dto/find-all-invoices-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateInvoiceBodyDto } from './dto/update-invoice-body.dto';
+import { PatchInvoiceBodyDto } from './dto/patch-invoice-body.dto';
 import { UpdateInvoiceResponseDto } from './dto/update-invoice-response.dto';
 import { FilterInvoicesQueryDto } from './dto/filter-invoices-query.dto';
 import { MetricsService } from '../metrics/metrics.service';
@@ -79,17 +80,33 @@ export class InvoicesService {
     invoice: UpdateInvoiceBodyDto,
   ): Promise<UpdateInvoiceResponseDto> {
     try {
-      const existingInvoice = await this.invoiceRepository.findOneBy({
-        id: invoice.id,
-      });
+      const existingInvoice = await this.invoiceRepository.findOneBy({ id });
       if (!existingInvoice || existingInvoice === null) {
-        throw new NotFoundException(`Invoice with ID ${invoice.id} not found`);
+        throw new NotFoundException(`Invoice with ID ${id} not found`);
       }
-      await this.invoiceRepository.update(invoice.id, invoice);
-      return this.findById(invoice.id);
+      await this.invoiceRepository.update(id, invoice);
+      return this.findById(id);
     } catch (error) {
       throw new InternalServerErrorException(
         `Error updating invoice: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  async patch(
+    id: number,
+    invoice: PatchInvoiceBodyDto,
+  ): Promise<UpdateInvoiceResponseDto> {
+    try {
+      const existingInvoice = await this.invoiceRepository.findOneBy({ id });
+      if (!existingInvoice || existingInvoice === null) {
+        throw new NotFoundException(`Invoice with ID ${id} not found`);
+      }
+      await this.invoiceRepository.update(id, invoice);
+      return this.findById(id);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error patching invoice: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

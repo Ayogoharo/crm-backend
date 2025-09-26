@@ -15,6 +15,7 @@ import {
 import { UpdateClientResponseDto } from './dto/update-client-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateClientBodyDto } from './dto/update-client-body.dto';
+import { PatchClientBodyDto } from './dto/patch-client-body.dto';
 import { ClientTotalResponseDto } from './dto/client-total-response.dto';
 
 @Injectable()
@@ -80,20 +81,39 @@ export class ClientsService {
     client: UpdateClientBodyDto,
   ): Promise<UpdateClientResponseDto> {
     try {
-      const existingClient = await this.clientRepository.findOneBy({
-        id: client.id,
-      });
+      const existingClient = await this.clientRepository.findOneBy({ id });
       if (!existingClient || existingClient === null) {
-        throw new NotFoundException(`Client with ID ${client.id} not found`);
+        throw new NotFoundException(`Client with ID ${id} not found`);
       }
-      await this.clientRepository.update(client.id, client);
-      return this.findById(client.id);
+      await this.clientRepository.update(id, client);
+      return this.findById(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(
         `Error updating client: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  async patch(
+    id: number,
+    client: PatchClientBodyDto,
+  ): Promise<UpdateClientResponseDto> {
+    try {
+      const existingClient = await this.clientRepository.findOneBy({ id });
+      if (!existingClient || existingClient === null) {
+        throw new NotFoundException(`Client with ID ${id} not found`);
+      }
+      await this.clientRepository.update(id, client);
+      return this.findById(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Error patching client: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

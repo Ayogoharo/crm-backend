@@ -1,46 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNumber,
-  IsDateString,
-  IsEnum,
-  IsString,
-  IsOptional,
-} from 'class-validator';
+import { IsNumber, IsDateString, IsEnum, IsString } from 'class-validator';
 
 export class UpdatePaymentBodyDto {
   @ApiProperty()
-  id: number;
-
-  @ApiProperty({ required: false })
   @IsNumber()
-  @IsOptional()
-  invoiceId?: number;
+  invoiceId: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  recordedBy?: number;
+  recordedBy: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsDateString()
-  @IsOptional()
-  paymentDate?: string;
+  paymentDate: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  amount?: number;
+  amount: number;
 
   @ApiProperty({
     enum: ['cash', 'bank_transfer', 'credit_card', 'paypal'],
-    required: false,
   })
   @IsEnum(['cash', 'bank_transfer', 'credit_card', 'paypal'])
-  @IsOptional()
-  method?: 'cash' | 'bank_transfer' | 'credit_card' | 'paypal';
+  method: 'cash' | 'bank_transfer' | 'credit_card' | 'paypal';
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
-  @IsOptional()
-  reference?: string;
+  reference: string;
 }

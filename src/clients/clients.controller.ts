@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -14,6 +15,7 @@ import { CreateClientResponseDto } from './dto/create-client-response.dto';
 import { FindAllClientsResponseDto } from './dto/find-all-clients-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateClientBodyDto } from './dto/update-client-body.dto';
+import { PatchClientBodyDto } from './dto/patch-client-body.dto';
 import { UpdateClientResponseDto } from './dto/update-client-response.dto';
 import { ClientTotalResponseDto } from './dto/client-total-response.dto';
 
@@ -40,11 +42,20 @@ export class ClientsController {
     return this.clientsService.findById(id);
   }
 
-  @Put()
+  @Put(':id')
   async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateClientDto: UpdateClientBodyDto,
   ): Promise<UpdateClientResponseDto> {
-    return this.clientsService.update(updateClientDto.id, updateClientDto);
+    return this.clientsService.update(id, updateClientDto);
+  }
+
+  @Patch(':id')
+  async patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() patchClientDto: PatchClientBodyDto,
+  ): Promise<UpdateClientResponseDto> {
+    return this.clientsService.patch(id, patchClientDto);
   }
 
   @Delete(':id')

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -14,6 +15,7 @@ import { CreatePaymentResponseDto } from './dto/create-payment-response.dto';
 import { FindAllPaymentsResponseDto } from './dto/find-all-payments-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdatePaymentBodyDto } from './dto/update-payment-body.dto';
+import { PatchPaymentBodyDto } from './dto/patch-payment-body.dto';
 import { UpdatePaymentResponseDto } from './dto/update-payment-response.dto';
 
 @Controller('payments')
@@ -40,11 +42,20 @@ export class PaymentsController {
     return this.paymentsService.findById(id);
   }
 
-  @Put()
+  @Put(':id')
   async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updatePaymentDto: UpdatePaymentBodyDto,
   ): Promise<UpdatePaymentResponseDto> {
-    return this.paymentsService.update(updatePaymentDto.id, updatePaymentDto);
+    return this.paymentsService.update(id, updatePaymentDto);
+  }
+
+  @Patch(':id')
+  async patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() patchPaymentDto: PatchPaymentBodyDto,
+  ): Promise<UpdatePaymentResponseDto> {
+    return this.paymentsService.patch(id, patchPaymentDto);
   }
 
   @Delete(':id')

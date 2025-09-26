@@ -1,27 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, IsOptional } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 
 export class UpdateClientBodyDto {
   @ApiProperty()
-  id: number;
-
-  @ApiProperty({ required: false })
   @IsString()
-  @IsOptional()
-  name?: string;
+  name: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  email: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
-  @IsOptional()
-  phone?: string;
+  phone: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
-  @IsOptional()
-  address?: string;
+  address: string;
 }

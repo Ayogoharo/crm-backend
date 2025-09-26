@@ -20,7 +20,9 @@ export class MetricsInterceptor implements NestInterceptor {
 
     const startTime = Date.now();
     const method = request.method;
-    const endpoint = this.normalizeEndpoint((request.route?.path as string) || request.url);
+    const endpoint = this.normalizeEndpoint(
+      (request.route?.path as string) || request.url,
+    );
 
     return next.handle().pipe(
       tap(() => {

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { InvoicesModule } from './invoices/invoices.module';
@@ -36,6 +37,7 @@ import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
     QueuesModule,
     MailModule,
     MetricsModule,
+    AuthModule,
     UsersModule,
     ClientsModule,
     LeadsModule,

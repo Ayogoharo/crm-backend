@@ -1,39 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsString,
-  IsEnum,
-  IsOptional,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsString, IsEnum, MinLength } from 'class-validator';
 
 export class UpdateUserBodyDto {
   @ApiProperty()
-  id: number;
-
-  @ApiProperty({ required: false })
   @IsEmail()
-  @IsOptional()
-  email?: string;
+  email: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
-  @IsOptional()
-  username?: string;
+  username: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
-  @IsOptional()
   @MinLength(8)
-  password?: string;
+  password: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
-  @IsOptional()
-  fullName?: string;
+  fullName: string;
 
-  @ApiProperty({ enum: ['admin', 'sales', 'accountant'], required: false })
+  @ApiProperty({ enum: ['admin', 'sales', 'accountant'] })
   @IsEnum(['admin', 'sales', 'accountant'])
-  @IsOptional()
-  role?: 'admin' | 'sales' | 'accountant';
+  role: 'admin' | 'sales' | 'accountant';
 }

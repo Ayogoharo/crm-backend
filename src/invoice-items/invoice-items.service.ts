@@ -11,6 +11,7 @@ import { CreateInvoiceItemResponseDto } from './dto/create-invoice-item-response
 import { FindAllInvoiceItemsResponseDto } from './dto/find-all-invoice-items-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateInvoiceItemBodyDto } from './dto/update-invoice-item-body.dto';
+import { PatchInvoiceItemBodyDto } from './dto/patch-invoice-item-body.dto';
 import { UpdateInvoiceItemResponseDto } from './dto/update-invoice-item-response.dto';
 
 @Injectable()
@@ -74,22 +75,42 @@ export class InvoiceItemsService {
   ): Promise<UpdateInvoiceItemResponseDto> {
     try {
       const existingInvoiceItem = await this.invoiceItemRepository.findOneBy({
-        id: id,
+        id,
       });
       if (!existingInvoiceItem || existingInvoiceItem === null) {
         throw new NotFoundException(`Invoice item with ID ${id} not found`);
       }
-      // Remove id from update data to avoid conflicts
-      const { id: _, ...updateData } = invoiceItem;
-      await this.invoiceItemRepository.update(id, updateData);
+      await this.invoiceItemRepository.update(id, invoiceItem);
       return this.findById(id);
     } catch (error) {
-      // Re-throw NotFoundException as-is, wrap other errors
       if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(
         `Error updating invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  async patch(
+    id: number,
+    invoiceItem: PatchInvoiceItemBodyDto,
+  ): Promise<UpdateInvoiceItemResponseDto> {
+    try {
+      const existingInvoiceItem = await this.invoiceItemRepository.findOneBy({
+        id,
+      });
+      if (!existingInvoiceItem || existingInvoiceItem === null) {
+        throw new NotFoundException(`Invoice item with ID ${id} not found`);
+      }
+      await this.invoiceItemRepository.update(id, invoiceItem);
+      return this.findById(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Error patching invoice item: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

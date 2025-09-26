@@ -79,7 +79,7 @@
           }
         },
         {
-          "name": "Update User",
+          "name": "Update User (PUT - Full Replace)",
           "request": {
             "method": "PUT",
             "header": [
@@ -90,12 +90,33 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": {{userId}},\n  \"email\": \"john.updated@example.com\",\n  \"username\": \"johnupdated\",\n  \"password\": \"newsecurepassword123\",\n  \"fullName\": \"John Updated Doe\",\n  \"role\": \"admin\"\n}"
+              "raw": "{\n  \"email\": \"john.updated@example.com\",\n  \"username\": \"johnupdated\",\n  \"password\": \"newsecurepassword123\",\n  \"fullName\": \"John Updated Doe\",\n  \"role\": \"admin\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/users",
+              "raw": "{{baseUrl}}/users/{{userId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["users"]
+              "path": ["users", "{{userId}}"]
+            }
+          }
+        },
+        {
+          "name": "Patch User (PATCH - Partial Update)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.patched@example.com\",\n  \"role\": \"sales\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}"]
             }
           }
         },
@@ -159,7 +180,7 @@
           }
         },
         {
-          "name": "Update Client",
+          "name": "Update Client (PUT - Full Replace)",
           "request": {
             "method": "PUT",
             "header": [
@@ -170,12 +191,33 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": {{clientId}},\n  \"name\": \"Acme Corporation Updated\",\n  \"email\": \"updated@acme.com\",\n  \"phone\": \"+1-555-987-6543\",\n  \"address\": \"456 Updated Business Ave, Suite 200, New York, NY 10002\"\n}"
+              "raw": "{\n  \"name\": \"Acme Corporation Updated\",\n  \"email\": \"updated@acme.com\",\n  \"phone\": \"+1-555-987-6543\",\n  \"address\": \"456 Updated Business Ave, Suite 200, New York, NY 10002\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/clients",
+              "raw": "{{baseUrl}}/clients/{{clientId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["clients"]
+              "path": ["clients", "{{clientId}}"]
+            }
+          }
+        },
+        {
+          "name": "Patch Client (PATCH - Partial Update)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corporation Patched\",\n  \"email\": \"patched@acme.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clients/{{clientId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients", "{{clientId}}"]
             }
           }
         },
@@ -381,7 +423,7 @@
           }
         },
         {
-          "name": "Update Invoice",
+          "name": "Update Invoice (PUT - Full Replace)",
           "request": {
             "method": "PUT",
             "header": [
@@ -392,12 +434,33 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": {{invoiceId}},\n  \"clientId\": {{clientId}},\n  \"issuedBy\": {{userId}},\n  \"invoiceDate\": \"2024-01-15T00:00:00.000Z\",\n  \"dueDate\": \"2024-02-28T00:00:00.000Z\",\n  \"status\": \"sent\",\n  \"totalAmount\": 3000.00\n}"
+              "raw": "{\n  \"clientId\": {{clientId}},\n  \"issuedBy\": {{userId}},\n  \"invoiceDate\": \"2024-01-15T00:00:00.000Z\",\n  \"dueDate\": \"2024-02-28T00:00:00.000Z\",\n  \"status\": \"sent\",\n  \"totalAmount\": 3000.00\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/invoices",
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["invoices"]
+              "path": ["invoices", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Patch Invoice (PATCH - Partial Update)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"paid\",\n  \"totalAmount\": 3500.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}"]
             }
           }
         },
@@ -461,7 +524,7 @@
           }
         },
         {
-          "name": "Update Invoice Item",
+          "name": "Update Invoice Item (PUT - Full Replace)",
           "request": {
             "method": "PUT",
             "header": [
@@ -472,12 +535,33 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": 1,\n  \"invoiceId\": {{invoiceId}},\n  \"description\": \"Web Development Services (Updated)\",\n  \"quantity\": 50,\n  \"unitPrice\": 80.00,\n  \"lineTotal\": 4000.00\n}"
+              "raw": "{\n  \"invoiceId\": {{invoiceId}},\n  \"description\": \"Web Development Services (Updated)\",\n  \"quantity\": 50,\n  \"unitPrice\": 80.00,\n  \"lineTotal\": 4000.00\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/invoice-items",
+              "raw": "{{baseUrl}}/invoice-items/1",
               "host": ["{{baseUrl}}"],
-              "path": ["invoice-items"]
+              "path": ["invoice-items", "1"]
+            }
+          }
+        },
+        {
+          "name": "Patch Invoice Item (PATCH - Partial Update)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 60,\n  \"unitPrice\": 85.00,\n  \"lineTotal\": 5100.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoice-items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoice-items", "1"]
             }
           }
         },
@@ -541,7 +625,7 @@
           }
         },
         {
-          "name": "Update Payment",
+          "name": "Update Payment (PUT - Full Replace)",
           "request": {
             "method": "PUT",
             "header": [
@@ -552,12 +636,33 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": 1,\n  \"invoiceId\": {{invoiceId}},\n  \"recordedBy\": {{userId}},\n  \"paymentDate\": \"2024-01-22T00:00:00.000Z\",\n  \"amount\": 3000.00,\n  \"method\": \"credit_card\",\n  \"reference\": \"TXN-2024-001-UPDATED\"\n}"
+              "raw": "{\n  \"invoiceId\": {{invoiceId}},\n  \"recordedBy\": {{userId}},\n  \"paymentDate\": \"2024-01-22T00:00:00.000Z\",\n  \"amount\": 3000.00,\n  \"method\": \"credit_card\",\n  \"reference\": \"TXN-2024-001-UPDATED\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/payments",
+              "raw": "{{baseUrl}}/payments/1",
               "host": ["{{baseUrl}}"],
-              "path": ["payments"]
+              "path": ["payments", "1"]
+            }
+          }
+        },
+        {
+          "name": "Patch Payment (PATCH - Partial Update)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 3200.00,\n  \"method\": \"bank_transfer\",\n  \"reference\": \"TXN-2024-001-PATCHED\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "1"]
             }
           }
         },

@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -16,6 +17,7 @@ import { CreateInvoiceResponseDto } from './dto/create-invoice-response.dto';
 import { FindAllInvoicesResponseDto } from './dto/find-all-invoices-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateInvoiceBodyDto } from './dto/update-invoice-body.dto';
+import { PatchInvoiceBodyDto } from './dto/patch-invoice-body.dto';
 import { UpdateInvoiceResponseDto } from './dto/update-invoice-response.dto';
 import { FilterInvoicesQueryDto } from './dto/filter-invoices-query.dto';
 
@@ -80,11 +82,20 @@ export class InvoicesController {
     return this.pdfQueueService.getPdfJobStatus(jobId);
   }
 
-  @Put()
+  @Put(':id')
   async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateInvoiceDto: UpdateInvoiceBodyDto,
   ): Promise<UpdateInvoiceResponseDto> {
-    return this.invoicesService.update(updateInvoiceDto.id, updateInvoiceDto);
+    return this.invoicesService.update(id, updateInvoiceDto);
+  }
+
+  @Patch(':id')
+  async patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() patchInvoiceDto: PatchInvoiceBodyDto,
+  ): Promise<UpdateInvoiceResponseDto> {
+    return this.invoicesService.patch(id, patchInvoiceDto);
   }
 
   @Delete(':id')

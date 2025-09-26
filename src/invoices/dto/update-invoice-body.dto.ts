@@ -1,41 +1,30 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsDateString, IsEnum, IsOptional } from 'class-validator';
+import { IsNumber, IsDateString, IsEnum } from 'class-validator';
 
 export class UpdateInvoiceBodyDto {
   @ApiProperty()
   @IsNumber()
-  id: number;
+  clientId: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  clientId?: number;
+  issuedBy: number;
 
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  issuedBy?: number;
-
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsDateString()
-  @IsOptional()
-  invoiceDate?: string;
+  invoiceDate: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsDateString()
-  @IsOptional()
-  dueDate?: string;
+  dueDate: string;
 
   @ApiProperty({
     enum: ['draft', 'sent', 'paid', 'overdue', 'cancelled'],
-    required: false,
   })
   @IsEnum(['draft', 'sent', 'paid', 'overdue', 'cancelled'])
-  @IsOptional()
-  status?: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  totalAmount?: number;
+  totalAmount: number;
 }

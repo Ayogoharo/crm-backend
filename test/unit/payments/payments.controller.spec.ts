@@ -3,6 +3,7 @@ import { PaymentsController } from '../../../src/payments/payments.controller';
 import { PaymentsService } from '../../../src/payments/payments.service';
 import { CreatePaymentBodyDto } from '../../../src/payments/dto/create-payment-body.dto';
 import { UpdatePaymentBodyDto } from '../../../src/payments/dto/update-payment-body.dto';
+import { PatchPaymentBodyDto } from '../../../src/payments/dto/patch-payment-body.dto';
 import {
   mockCreatePaymentDto,
   mockPayment,
@@ -19,6 +20,7 @@ describe('PaymentsController', () => {
       findAll: jest.fn(),
       findById: jest.fn(),
       update: jest.fn(),
+      patch: jest.fn(),
       delete: jest.fn(),
     };
 
@@ -158,12 +160,9 @@ describe('PaymentsController', () => {
       const updatedPayment = { ...mockPayment, amount: 1500.75 };
       service.update.mockResolvedValue(updatedPayment);
 
-      const result = await controller.update(mockUpdatePaymentDto);
+      const result = await controller.update(1, mockUpdatePaymentDto);
 
-      expect(service.update).toHaveBeenCalledWith(
-        mockUpdatePaymentDto.id,
-        mockUpdatePaymentDto,
-      );
+      expect(service.update).toHaveBeenCalledWith(1, mockUpdatePaymentDto);
       expect(result).toEqual(updatedPayment);
     });
 
@@ -171,46 +170,35 @@ describe('PaymentsController', () => {
       const error = new Error('Update failed');
       service.update.mockRejectedValue(error);
 
-      await expect(controller.update(mockUpdatePaymentDto)).rejects.toThrow(
+      await expect(controller.update(1, mockUpdatePaymentDto)).rejects.toThrow(
         error,
       );
-      expect(service.update).toHaveBeenCalledWith(
-        mockUpdatePaymentDto.id,
-        mockUpdatePaymentDto,
-      );
+      expect(service.update).toHaveBeenCalledWith(1, mockUpdatePaymentDto);
     });
 
-    it('should update payment with partial data', async () => {
-      const partialUpdateDto: UpdatePaymentBodyDto = {
-        id: 1,
+    it('should update payment with partial data using PATCH', async () => {
+      const partialPatchDto: PatchPaymentBodyDto = {
         amount: 2000,
       };
       const updatedPayment = { ...mockPayment, amount: 2000 };
-      service.update.mockResolvedValue(updatedPayment);
+      service.patch.mockResolvedValue(updatedPayment);
 
-      const result = await controller.update(partialUpdateDto);
+      const result = await controller.patch(1, partialPatchDto);
 
-      expect(service.update).toHaveBeenCalledWith(
-        partialUpdateDto.id,
-        partialUpdateDto,
-      );
+      expect(service.patch).toHaveBeenCalledWith(1, partialPatchDto);
       expect(result).toEqual(updatedPayment);
     });
 
-    it('should handle updating payment method', async () => {
-      const methodUpdateDto: UpdatePaymentBodyDto = {
-        id: 1,
+    it('should handle updating payment method using PATCH', async () => {
+      const methodPatchDto: PatchPaymentBodyDto = {
         method: 'paypal',
       };
       const updatedPayment = { ...mockPayment, method: 'paypal' };
-      service.update.mockResolvedValue(updatedPayment);
+      service.patch.mockResolvedValue(updatedPayment);
 
-      const result = await controller.update(methodUpdateDto);
+      const result = await controller.patch(1, methodPatchDto);
 
-      expect(service.update).toHaveBeenCalledWith(
-        methodUpdateDto.id,
-        methodUpdateDto,
-      );
+      expect(service.patch).toHaveBeenCalledWith(1, methodPatchDto);
       expect(result).toEqual(updatedPayment);
     });
   });

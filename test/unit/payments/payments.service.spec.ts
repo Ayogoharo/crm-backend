@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { PaymentsService } from '../../../src/payments/payments.service';
 import { Payment } from '../../../src/payments/entities/payment.entity';
+import { MetricsService } from '../../../src/metrics/metrics.service';
 import {
   mockPayment,
   mockCreatePaymentDto,
@@ -34,6 +35,13 @@ describe('PaymentsService', () => {
         {
           provide: getRepositoryToken(Payment),
           useValue: mockRepository,
+        },
+        {
+          provide: MetricsService,
+          useValue: {
+            incrementPaymentCounter: jest.fn(),
+            incrementPaymentsReceived: jest.fn(),
+          },
         },
       ],
     }).compile();
@@ -166,14 +174,9 @@ describe('PaymentsService', () => {
 
       const result = await service.update(1, mockUpdatePaymentDto);
 
-      expect(repository.findOneBy).toHaveBeenCalledWith({
-        id: mockUpdatePaymentDto.id,
-      });
-      expect(repository.update).toHaveBeenCalledWith(
-        mockUpdatePaymentDto.id,
-        mockUpdatePaymentDto,
-      );
-      expect(service.findById).toHaveBeenCalledWith(mockUpdatePaymentDto.id);
+      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(repository.update).toHaveBeenCalledWith(1, mockUpdatePaymentDto);
+      expect(service.findById).toHaveBeenCalledWith(1);
       expect(result).toEqual(updatedPayment);
     });
 
@@ -184,7 +187,7 @@ describe('PaymentsService', () => {
         NotFoundException,
       );
       await expect(service.update(999, mockUpdatePaymentDto)).rejects.toThrow(
-        'Payment with ID 1 not found',
+        'Payment with ID 999 not found',
       );
     });
 

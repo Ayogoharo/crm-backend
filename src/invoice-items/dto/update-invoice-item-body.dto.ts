@@ -1,33 +1,24 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString, IsOptional } from 'class-validator';
+import { IsNumber, IsString } from 'class-validator';
 
 export class UpdateInvoiceItemBodyDto {
   @ApiProperty()
   @IsNumber()
-  id: number;
+  invoiceId: number;
 
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  invoiceId?: number;
-
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsString()
-  @IsOptional()
-  description?: string;
+  description: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  quantity?: number;
+  quantity: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  unitPrice?: number;
+  unitPrice: number;
 
-  @ApiProperty({ required: false })
+  @ApiProperty()
   @IsNumber()
-  @IsOptional()
-  lineTotal?: number;
+  lineTotal: number;
 }

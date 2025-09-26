@@ -78,7 +78,6 @@ export const mockCreatePaymentDto: CreatePaymentBodyDto = {
 };
 
 export const mockUpdatePaymentDto: UpdatePaymentBodyDto = {
-  id: 1,
   invoiceId: 1,
   recordedBy: 1,
   paymentDate: '2024-01-15',

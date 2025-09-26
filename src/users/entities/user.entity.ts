@@ -4,8 +4,12 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  BeforeInsert,
+  BeforeUpdate,
 } from 'typeorm';
 import { MinLength } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import * as bcrypt from 'bcrypt';
 
 @Entity('users')
 export class User {
@@ -20,6 +24,7 @@ export class User {
 
   @Column({ type: 'varchar', length: 255 })
   @MinLength(8)
+  @Exclude()
   password: string;
 
   @Column({ type: 'varchar', length: 255, name: 'full_name' })
@@ -37,4 +42,17 @@ export class User {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    if (this.password) {
+      const salt = await bcrypt.genSalt(12);
+      this.password = await bcrypt.hash(this.password, salt);
+    }
+  }
+
+  async validatePassword(password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password);
+  }
 }

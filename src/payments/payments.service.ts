@@ -11,6 +11,7 @@ import { CreatePaymentResponseDto } from './dto/create-payment-response.dto';
 import { FindAllPaymentsResponseDto } from './dto/find-all-payments-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdatePaymentBodyDto } from './dto/update-payment-body.dto';
+import { PatchPaymentBodyDto } from './dto/patch-payment-body.dto';
 import { UpdatePaymentResponseDto } from './dto/update-payment-response.dto';
 import { MetricsService } from '../metrics/metrics.service';
 
@@ -77,20 +78,39 @@ export class PaymentsService {
     payment: UpdatePaymentBodyDto,
   ): Promise<UpdatePaymentResponseDto> {
     try {
-      const existingPayment = await this.paymentRepository.findOneBy({
-        id: payment.id,
-      });
+      const existingPayment = await this.paymentRepository.findOneBy({ id });
       if (!existingPayment || existingPayment === null) {
-        throw new NotFoundException(`Payment with ID ${payment.id} not found`);
+        throw new NotFoundException(`Payment with ID ${id} not found`);
       }
-      await this.paymentRepository.update(payment.id, payment);
-      return this.findById(payment.id);
+      await this.paymentRepository.update(id, payment);
+      return this.findById(id);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
       throw new InternalServerErrorException(
         `Error updating payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
+  }
+
+  async patch(
+    id: number,
+    payment: PatchPaymentBodyDto,
+  ): Promise<UpdatePaymentResponseDto> {
+    try {
+      const existingPayment = await this.paymentRepository.findOneBy({ id });
+      if (!existingPayment || existingPayment === null) {
+        throw new NotFoundException(`Payment with ID ${id} not found`);
+      }
+      await this.paymentRepository.update(id, payment);
+      return this.findById(id);
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Error patching payment: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

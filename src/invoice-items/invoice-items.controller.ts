@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -14,6 +15,7 @@ import { CreateInvoiceItemResponseDto } from './dto/create-invoice-item-response
 import { FindAllInvoiceItemsResponseDto } from './dto/find-all-invoice-items-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateInvoiceItemBodyDto } from './dto/update-invoice-item-body.dto';
+import { PatchInvoiceItemBodyDto } from './dto/patch-invoice-item-body.dto';
 import { UpdateInvoiceItemResponseDto } from './dto/update-invoice-item-response.dto';
 
 @Controller('invoice-items')
@@ -41,14 +43,20 @@ export class InvoiceItemsController {
     return this.invoiceItemsService.findById(id);
   }
 
-  @Put()
+  @Put(':id')
   async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateInvoiceItemDto: UpdateInvoiceItemBodyDto,
   ): Promise<UpdateInvoiceItemResponseDto> {
-    return this.invoiceItemsService.update(
-      updateInvoiceItemDto.id,
-      updateInvoiceItemDto,
-    );
+    return this.invoiceItemsService.update(id, updateInvoiceItemDto);
+  }
+
+  @Patch(':id')
+  async patch(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() patchInvoiceItemDto: PatchInvoiceItemBodyDto,
+  ): Promise<UpdateInvoiceItemResponseDto> {
+    return this.invoiceItemsService.patch(id, patchInvoiceItemDto);
   }
 
   @Delete(':id')
