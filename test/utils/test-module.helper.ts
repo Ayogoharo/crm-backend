@@ -24,13 +24,11 @@ export class TestModuleHelper {
         UnitTestLoggerModule,
         TypeOrmModule.forRoot({
           type: 'postgres',
-          host: process.env.TEST_POSTGRES_HOST || 'localhost',
-          port: process.env.TEST_POSTGRES_PORT
-            ? parseInt(process.env.TEST_POSTGRES_PORT)
-            : 5433,
-          username: process.env.TEST_POSTGRES_USER || 'postgres',
-          password: process.env.TEST_POSTGRES_PASSWORD || 'password',
-          database: process.env.TEST_POSTGRES_DB || 'crm_test_db',
+          host: `${process.env.TEST_POSTGRES_HOST}`,
+          port: Number(process.env.TEST_POSTGRES_PORT),
+          username: `${process.env.TEST_POSTGRES_USER}`,
+          password: `${process.env.TEST_POSTGRES_PASSWORD}`,
+          database: `${process.env.TEST_POSTGRES_DB}`,
           entities: [User, Client, Lead, Invoice, InvoiceItem, Payment],
           synchronize: true,
           dropSchema: false, // We'll handle cleanup manually

@@ -11,5 +11,6 @@
     "^src/(.*)$": "<rootDir>/../src/$1",
     "^migrations/(.*)$": "<rootDir>/../migrations/$1"
   },
-  "setupFilesAfterEnv": ["<rootDir>/setup/jest.setup.ts"]
+  "setupFilesAfterEnv": ["<rootDir>/setup/jest.setup.ts"],
+  "maxWorkers": 1
 }

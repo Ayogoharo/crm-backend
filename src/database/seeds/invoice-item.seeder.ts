@@ -79,7 +79,9 @@ export class InvoiceItemSeeder implements Seeder {
       });
 
       const totalAmount = parseFloat(
-        items.reduce((sum, item) => sum + item.lineTotal, 0).toFixed(2),
+        items
+          .reduce((sum, item) => sum + parseFloat(item.lineTotal.toString()), 0)
+          .toFixed(2),
       );
 
       await invoiceRepository.update(invoice.id, { totalAmount });

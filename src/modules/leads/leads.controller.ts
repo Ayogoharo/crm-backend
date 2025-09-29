@@ -8,10 +8,18 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import * as leadsService from './leads.service';
 import { LeadsQueueService } from 'src/queues/services/leads-queue.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('leads')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('leads')
 export class LeadsController {
   constructor(
@@ -20,6 +28,7 @@ export class LeadsController {
   ) {}
 
   @Post()
+  @Roles('admin', 'sales')
   async create(
     @Body() createLeadDto: leadsService.CreateLeadBodyDto,
   ): Promise<leadsService.CreateLeadResponseDto> {
@@ -83,6 +92,7 @@ export class LeadsController {
   }
 
   @Put(':id')
+  @Roles('admin', 'sales')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateLeadDto: leadsService.UpdateLeadBodyDto,
@@ -91,6 +101,7 @@ export class LeadsController {
   }
 
   @Delete(':id')
+  @Roles('admin')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.leadsService.delete(id);
   }

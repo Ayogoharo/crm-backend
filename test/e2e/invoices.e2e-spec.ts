@@ -5,9 +5,13 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { InvoiceTestDataFactory } from '../../src/invoices/test-utils/invoice-test-data.factory';
 import { Client } from '../../src/clients/entities/client.entity';
-import { User } from '../../src/users/entities/user.entity';
 import { Invoice } from '../../src/invoices/entities/invoice.entity';
 import { createTestApp } from '../utils/test-app-setup.helper';
+import {
+  loginAsAdmin,
+  loginAsAccountant,
+  withAuth,
+} from '../utils/auth-helpers';
 
 describe('InvoicesController (e2e)', () => {
   let app: INestApplication<App>;
@@ -24,24 +28,20 @@ describe('InvoicesController (e2e)', () => {
 
   describe('/invoices (POST)', () => {
     it('should create a new invoice and return its ID', async () => {
-      // Arrange: Create a client and a user to associate with the invoice
+      // Arrange: Login as accountant (who can create invoices)
+      const { token, user } = await loginAsAccountant(app);
+
       const clientRepository = app.get<Repository<Client>>(
         getRepositoryToken(Client),
       );
-      const userRepository = app.get<Repository<User>>(
-        getRepositoryToken(User),
-      );
 
+      // Create unique test client to avoid conflicts
+      const timestamp = Date.now();
       const client = await clientRepository.save({
-        name: 'Test Client for Invoice',
-      });
-
-      const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
-        password: 'password',
-        fullName: 'Test User',
-        role: 'admin',
+        name: `Test Client for Invoice ${timestamp}`,
+        email: `client${timestamp}@example.com`,
+        phone: `+1234567${timestamp.toString().slice(-3)}`,
+        address: `Test Address ${timestamp}`,
       });
 
       const invoiceData = InvoiceTestDataFactory.createValidInvoiceData({
@@ -49,9 +49,11 @@ describe('InvoicesController (e2e)', () => {
         issuedBy: user.id,
       });
 
-      // Act: Send the request to the server
-      const response = await request(app.getHttpServer())
-        .post('/invoices')
+      // Act: Send authenticated request to the server
+      const response = await withAuth(
+        request(app.getHttpServer()).post('/invoices'),
+        token,
+      )
         .send(invoiceData)
         .expect(201);
 
@@ -69,29 +71,41 @@ describe('InvoicesController (e2e)', () => {
       expect(savedInvoice!.issuedBy).toBe(user.id);
       expect(savedInvoice!.status).toBe(invoiceData.status);
     });
+
+    it('should reject unauthenticated requests', async () => {
+      // Arrange
+      const invoiceData = InvoiceTestDataFactory.createValidInvoiceData({
+        clientId: 1,
+        issuedBy: 1,
+      });
+
+      // Act & Assert: Request without authentication should fail
+      await request(app.getHttpServer())
+        .post('/invoices')
+        .send(invoiceData)
+        .expect(401);
+    });
   });
 
   describe('/invoices (GET)', () => {
     it('should return a list of all invoices', async () => {
-      // Arrange: Create a client, a user, and some invoices
-      // Get repositories from the app module
+      // Arrange: Login and create test data
+      const { token, user } = await loginAsAccountant(app);
+
       const clientRepository = app.get<Repository<Client>>(
         getRepositoryToken(Client),
-      );
-      const userRepository = app.get<Repository<User>>(
-        getRepositoryToken(User),
       );
       const invoiceRepository = app.get<Repository<Invoice>>(
         getRepositoryToken(Invoice),
       );
 
-      const client = await clientRepository.save({ name: 'Test Client' });
-      const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
-        password: 'password',
-        fullName: 'Test User',
-        role: 'admin',
+      // Create unique test data
+      const timestamp = Date.now();
+      const client = await clientRepository.save({
+        name: `Test Client ${timestamp}`,
+        email: `client${timestamp}@test.com`,
+        phone: `+123456${timestamp.toString().slice(-4)}`,
+        address: `Test Address ${timestamp}`,
       });
 
       await invoiceRepository.save(
@@ -107,37 +121,35 @@ describe('InvoicesController (e2e)', () => {
         }),
       );
 
-      // Act
-      const response = await request(app.getHttpServer())
-        .get('/invoices')
-        .expect(200);
+      // Act: Send authenticated request
+      const response = await withAuth(
+        request(app.getHttpServer()).get('/invoices'),
+        token,
+      ).expect(200);
 
       // Assert
       const { invoices } = response.body as { invoices: Invoice[] };
       expect(invoices).toBeInstanceOf(Array);
-      expect(invoices.length).toBe(2);
+      expect(invoices.length).toBeGreaterThanOrEqual(2); // At least our 2 test invoices
     });
 
     it('should return a single invoice by ID', async () => {
-      // Arrange
-      // Get repositories from the app module
+      // Arrange: Login as accountant
+      const { token, user } = await loginAsAccountant(app);
+
       const clientRepository = app.get<Repository<Client>>(
         getRepositoryToken(Client),
-      );
-      const userRepository = app.get<Repository<User>>(
-        getRepositoryToken(User),
       );
       const invoiceRepository = app.get<Repository<Invoice>>(
         getRepositoryToken(Invoice),
       );
 
-      const client = await clientRepository.save({ name: 'Test Client' });
-      const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
-        password: 'password',
-        fullName: 'Test User',
-        role: 'admin',
+      const timestamp = Date.now();
+      const client = await clientRepository.save({
+        name: `Test Client ${timestamp}`,
+        email: `client${timestamp}@example.com`,
+        phone: `+123456${timestamp.toString().slice(-4)}`,
+        address: `Test Address ${timestamp}`,
       });
 
       const invoice = await invoiceRepository.save(
@@ -148,10 +160,11 @@ describe('InvoicesController (e2e)', () => {
         }),
       );
 
-      // Act
-      const response = await request(app.getHttpServer())
-        .get(`/invoices/${invoice.id}`)
-        .expect(200);
+      // Act: Send authenticated request
+      const response = await withAuth(
+        request(app.getHttpServer()).get(`/invoices/${invoice.id}`),
+        token,
+      ).expect(200);
 
       // Assert
       const body = response.body as Invoice;
@@ -160,32 +173,35 @@ describe('InvoicesController (e2e)', () => {
     });
 
     it('should return 404 for a non-existent invoice ID', async () => {
-      // Act & Assert
-      await request(app.getHttpServer()).get('/invoices/99999').expect(404);
+      // Arrange: Login as accountant
+      const { token } = await loginAsAccountant(app);
+
+      // Act & Assert: Send authenticated request
+      await withAuth(
+        request(app.getHttpServer()).get('/invoices/99999'),
+        token,
+      ).expect(404);
     });
   });
 
   describe('/invoices (PUT)', () => {
     it('should update an existing invoice', async () => {
-      // Arrange
-      // Get repositories from the app module
+      // Arrange: Login as accountant
+      const { token, user } = await loginAsAccountant(app);
+
       const clientRepository = app.get<Repository<Client>>(
         getRepositoryToken(Client),
-      );
-      const userRepository = app.get<Repository<User>>(
-        getRepositoryToken(User),
       );
       const invoiceRepository = app.get<Repository<Invoice>>(
         getRepositoryToken(Invoice),
       );
 
-      const client = await clientRepository.save({ name: 'Test Client' });
-      const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
-        password: 'password',
-        fullName: 'Test User',
-        role: 'admin',
+      const timestamp = Date.now();
+      const client = await clientRepository.save({
+        name: `Test Client ${timestamp}`,
+        email: `client${timestamp}@example.com`,
+        phone: `+123456${timestamp.toString().slice(-4)}`,
+        address: `Test Address ${timestamp}`,
       });
 
       const invoice = await invoiceRepository.save(
@@ -197,14 +213,19 @@ describe('InvoicesController (e2e)', () => {
       );
 
       const updateData = {
-        id: invoice.id,
-        status: 'sent',
+        clientId: client.id,
+        issuedBy: user.id,
+        invoiceDate: new Date().toISOString(),
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+        status: 'sent' as const,
         totalAmount: 500.0,
       };
 
-      // Act
-      await request(app.getHttpServer())
-        .put('/invoices')
+      // Act: Send authenticated request
+      await withAuth(
+        request(app.getHttpServer()).put(`/invoices/${invoice.id}`),
+        token,
+      )
         .send(updateData)
         .expect(200);
 
@@ -220,38 +241,37 @@ describe('InvoicesController (e2e)', () => {
 
   describe('/invoices (DELETE)', () => {
     it('should delete an existing invoice', async () => {
-      // Arrange
-      // Get repositories from the app module
+      // Arrange: Create invoice first, then login as admin to delete it
+      const accountant = await loginAsAccountant(app);
+      const admin = await loginAsAdmin(app);
+
       const clientRepository = app.get<Repository<Client>>(
         getRepositoryToken(Client),
-      );
-      const userRepository = app.get<Repository<User>>(
-        getRepositoryToken(User),
       );
       const invoiceRepository = app.get<Repository<Invoice>>(
         getRepositoryToken(Invoice),
       );
 
-      const client = await clientRepository.save({ name: 'Test Client' });
-      const user = await userRepository.save({
-        email: 'test@example.com',
-        username: 'testuser',
-        password: 'password',
-        fullName: 'Test User',
-        role: 'admin',
+      const timestamp = Date.now();
+      const client = await clientRepository.save({
+        name: `Test Client ${timestamp}`,
+        email: `client${timestamp}@example.com`,
+        phone: `+123456${timestamp.toString().slice(-4)}`,
+        address: `Test Address ${timestamp}`,
       });
 
       const invoice = await invoiceRepository.save(
         InvoiceTestDataFactory.createValidInvoiceData({
           clientId: client.id,
-          issuedBy: user.id,
+          issuedBy: accountant.user.id,
         }),
       );
 
-      // Act
-      await request(app.getHttpServer())
-        .delete(`/invoices/${invoice.id}`)
-        .expect(200);
+      // Act: Send authenticated request as admin
+      await withAuth(
+        request(app.getHttpServer()).delete(`/invoices/${invoice.id}`),
+        admin.token,
+      ).expect(200);
 
       // Assert
       const deletedInvoice = await invoiceRepository.findOneBy({
@@ -261,8 +281,14 @@ describe('InvoicesController (e2e)', () => {
     });
 
     it('should return 404 for a non-existent invoice ID', async () => {
-      // Act & Assert
-      await request(app.getHttpServer()).delete('/invoices/99999').expect(404);
+      // Arrange: Login as admin
+      const { token } = await loginAsAdmin(app);
+
+      // Act & Assert: Send authenticated request
+      await withAuth(
+        request(app.getHttpServer()).delete('/invoices/99999'),
+        token,
+      ).expect(404);
     });
   });
 });

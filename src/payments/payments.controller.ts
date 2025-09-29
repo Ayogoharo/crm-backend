@@ -8,6 +8,7 @@ import {
   Body,
   Param,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentBodyDto } from './dto/create-payment-body.dto';
@@ -17,12 +18,20 @@ import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdatePaymentBodyDto } from './dto/update-payment-body.dto';
 import { PatchPaymentBodyDto } from './dto/patch-payment-body.dto';
 import { UpdatePaymentResponseDto } from './dto/update-payment-response.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('payments')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post()
+  @Roles('admin', 'accountant')
   async create(
     @Body() createPaymentDto: CreatePaymentBodyDto,
   ): Promise<CreatePaymentResponseDto> {
@@ -43,6 +52,7 @@ export class PaymentsController {
   }
 
   @Put(':id')
+  @Roles('admin', 'accountant')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updatePaymentDto: UpdatePaymentBodyDto,
@@ -51,6 +61,7 @@ export class PaymentsController {
   }
 
   @Patch(':id')
+  @Roles('admin', 'accountant')
   async patch(
     @Param('id', ParseIntPipe) id: number,
     @Body() patchPaymentDto: PatchPaymentBodyDto,
@@ -59,6 +70,7 @@ export class PaymentsController {
   }
 
   @Delete(':id')
+  @Roles('admin')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.paymentsService.delete(id);
   }

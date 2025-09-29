@@ -17,12 +17,31 @@ import { BullModule } from '@nestjs/bull';
 import { LoggerModule } from 'nestjs-pino';
 import { getLoggerConfig } from './config/logger.config';
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 1000,
+        limit: 3,
+      },
+      {
+        name: 'medium',
+        ttl: 10000,
+        limit: 20,
+      },
+      {
+        name: 'long',
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     PrometheusModule.register(),
     LoggerModule.forRoot({
       pinoHttp: getLoggerConfig(),
@@ -46,7 +65,7 @@ import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
     PaymentsModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: `${process.env.POSTGRES_HOST}`,
       port: Number(process.env.POSTGRES_PORT),
       username: `${process.env.POSTGRES_USER}`,
       password: `${process.env.POSTGRES_PASSWORD}`,
@@ -60,7 +79,15 @@ import { MetricsInterceptor } from './common/interceptors/metrics.interceptor';
     AppService,
     {
       provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
       useClass: MetricsInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })

@@ -9,6 +9,7 @@ import {
   Param,
   ParseIntPipe,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { InvoicesService } from './invoices.service';
 import { PdfQueueService } from 'src/queues/services/pdf-queue.service';
@@ -20,7 +21,14 @@ import { UpdateInvoiceBodyDto } from './dto/update-invoice-body.dto';
 import { PatchInvoiceBodyDto } from './dto/patch-invoice-body.dto';
 import { UpdateInvoiceResponseDto } from './dto/update-invoice-response.dto';
 import { FilterInvoicesQueryDto } from './dto/filter-invoices-query.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('invoices')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('invoices')
 export class InvoicesController {
   constructor(
@@ -29,6 +37,7 @@ export class InvoicesController {
   ) {}
 
   @Post()
+  @Roles('admin', 'accountant')
   async create(
     @Body() createInvoiceDto: CreateInvoiceBodyDto,
   ): Promise<CreateInvoiceResponseDto> {
@@ -83,6 +92,7 @@ export class InvoicesController {
   }
 
   @Put(':id')
+  @Roles('admin', 'accountant')
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateInvoiceDto: UpdateInvoiceBodyDto,
@@ -91,6 +101,7 @@ export class InvoicesController {
   }
 
   @Patch(':id')
+  @Roles('admin', 'accountant')
   async patch(
     @Param('id', ParseIntPipe) id: number,
     @Body() patchInvoiceDto: PatchInvoiceBodyDto,
@@ -99,6 +110,7 @@ export class InvoicesController {
   }
 
   @Delete(':id')
+  @Roles('admin')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.invoicesService.delete(id);
   }
