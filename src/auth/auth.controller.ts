@@ -11,8 +11,12 @@ export class AuthController {
 
   @Post('login')
   @ApiBody({ type: LoginDto })
-  @ApiResponse({ status: 200, type: LoginResponseDto })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 201,
+    type: LoginResponseDto,
+    description: 'Successfully authenticated',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);
   }

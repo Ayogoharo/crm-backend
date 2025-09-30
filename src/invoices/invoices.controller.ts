@@ -24,10 +24,15 @@ import { FilterInvoicesQueryDto } from './dto/filter-invoices-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 
 @ApiTags('invoices')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('invoices')
 export class InvoicesController {
@@ -38,6 +43,23 @@ export class InvoicesController {
 
   @Post()
   @Roles('admin', 'accountant')
+  @ApiOperation({
+    summary: 'Create a new invoice',
+    description: 'Creates a new invoice. Requires admin or accountant role.',
+  })
+  @ApiResponse({
+    status: 201,
+    type: CreateInvoiceResponseDto,
+    description: 'Invoice created successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid or missing JWT token',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient role permissions',
+  })
   async create(
     @Body() createInvoiceDto: CreateInvoiceBodyDto,
   ): Promise<CreateInvoiceResponseDto> {

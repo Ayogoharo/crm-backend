@@ -1,0 +1,626 @@
+{
+  "info": {
+    "name": "CRM Backend API",
+    "description": "Complete collection for CRM Backend API with JWT authentication and role-based access control.\n\n## Getting Started\n1. Set up environment variables (see Environment section)\n2. Run the 'Login - Admin' request to get JWT token\n3. The token will be automatically stored and used for subsequent requests\n4. All protected endpoints will use the stored JWT token automatically\n\n## Authentication Flow\n- POST /auth/login with email/password returns JWT token\n- Token is stored in environment variable and used in Authorization header\n- All protected endpoints require 'Bearer {{token}}' in Authorization header\n\n## Roles\n- **admin**: Full access to all resources\n- **accountant**: Can manage invoices, invoice items, and view clients\n- **sales**: Can manage leads and clients",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "exec": [
+          "// Auto-set authorization header for protected endpoints",
+          "if (pm.info.requestName !== 'Login - Admin' && pm.info.requestName !== 'Login - Accountant' && pm.info.requestName !== 'Login - Sales') {",
+          "    pm.request.headers.add({",
+          "        key: 'Authorization',",
+          "        value: 'Bearer ' + pm.environment.get('token')",
+          "    });",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('token', responseJson.access_token);",
+                  "    pm.test('Login successful and token stored', function () {",
+                  "        pm.expect(responseJson.access_token).to.be.a('string');",
+                  "    });",
+                  "} else {",
+                  "    pm.test('Login failed', function () {",
+                  "        pm.response.to.have.status(401);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"securePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with admin credentials to get JWT token. Token is automatically stored for use in protected endpoints."
+          }
+        },
+        {
+          "name": "Login - Accountant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('token', responseJson.access_token);",
+                  "    pm.test('Login successful and token stored', function () {",
+                  "        pm.expect(responseJson.access_token).to.be.a('string');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"accountant@example.com\",\n  \"password\": \"securePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with accountant credentials (can manage invoices and invoice items)."
+          }
+        },
+        {
+          "name": "Login - Sales",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const responseJson = pm.response.json();",
+                  "    pm.environment.set('token', responseJson.access_token);",
+                  "    pm.test('Login successful and token stored', function () {",
+                  "        pm.expect(responseJson.access_token).to.be.a('string');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sales@example.com\",\n  \"password\": \"securePassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with sales credentials (can manage leads and clients)."
+          }
+        }
+      ],
+      "description": "Authentication endpoints for JWT token generation"
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"password\": \"securePassword123\",\n  \"role\": \"sales\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Create a new user (requires admin role)"
+          }
+        },
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "description": "Retrieve all users (requires admin role)"
+          }
+        },
+        {
+          "name": "Get User by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "1"]
+            },
+            "description": "Retrieve a specific user by ID"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "description": "User management endpoints (require authentication)"
+    },
+    {
+      "name": "Clients",
+      "item": [
+        {
+          "name": "Create Client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Corporation\",\n  \"email\": \"contact@acme.com\",\n  \"phone\": \"+1-555-0123\",\n  \"address\": \"123 Business St, Suite 100, Business City, BC 12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients"]
+            },
+            "description": "Create a new client"
+          }
+        },
+        {
+          "name": "Get All Clients",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/clients",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients"]
+            },
+            "description": "Retrieve all clients"
+          }
+        },
+        {
+          "name": "Get Client by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/clients/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients", "1"]
+            },
+            "description": "Retrieve a specific client by ID"
+          }
+        },
+        {
+          "name": "Update Client",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Acme Corporation\",\n  \"email\": \"newcontact@acme.com\",\n  \"phone\": \"+1-555-0124\",\n  \"address\": \"456 New Business St, Suite 200, Business City, BC 12345\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/clients/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["clients", "1"]
+            },
+            "description": "Update a client completely"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "description": "Client management endpoints (require authentication)"
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Create Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": 1,\n  \"amount\": 1500.00,\n  \"status\": \"pending\",\n  \"issueDate\": \"2024-01-15\",\n  \"dueDate\": \"2024-02-15\",\n  \"description\": \"Monthly consulting services\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"]
+            },
+            "description": "Create a new invoice (requires admin or accountant role)"
+          }
+        },
+        {
+          "name": "Get All Invoices",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"]
+            },
+            "description": "Retrieve all invoices"
+          }
+        },
+        {
+          "name": "Get Invoices by Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            },
+            "description": "Filter invoices by status (pending, paid, overdue)"
+          }
+        },
+        {
+          "name": "Get Invoice by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "1"]
+            },
+            "description": "Retrieve a specific invoice by ID"
+          }
+        },
+        {
+          "name": "Generate Invoice PDF",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/1/pdf?requestedBy=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "1", "pdf"],
+              "query": [
+                {
+                  "key": "requestedBy",
+                  "value": "1"
+                }
+              ]
+            },
+            "description": "Start PDF generation for an invoice (background job)"
+          }
+        },
+        {
+          "name": "Check PDF Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/1/pdf/status/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "1", "pdf", "status", "{{jobId}}"]
+            },
+            "description": "Check the status of PDF generation job"
+          }
+        },
+        {
+          "name": "Update Invoice",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clientId\": 1,\n  \"amount\": 1750.00,\n  \"status\": \"paid\",\n  \"issueDate\": \"2024-01-15\",\n  \"dueDate\": \"2024-02-15\",\n  \"description\": \"Updated monthly consulting services\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "1"]
+            },
+            "description": "Update an invoice completely (requires admin or accountant role)"
+          }
+        },
+        {
+          "name": "Delete Invoice",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "1"]
+            },
+            "description": "Delete an invoice (requires admin role)"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "description": "Invoice management endpoints (require authentication and role-based permissions)"
+    },
+    {
+      "name": "Leads",
+      "item": [
+        {
+          "name": "Create Lead",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john.doe@company.com\",\n  \"phone\": \"+1-555-0199\",\n  \"company\": \"Tech Solutions Inc\",\n  \"source\": \"website\",\n  \"notes\": \"Interested in our enterprise package\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/leads",
+              "host": ["{{baseUrl}}"],
+              "path": ["leads"]
+            },
+            "description": "Create a new lead (Clean Architecture/DDD implementation)"
+          }
+        },
+        {
+          "name": "Get All Leads",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/leads",
+              "host": ["{{baseUrl}}"],
+              "path": ["leads"]
+            },
+            "description": "Retrieve all leads"
+          }
+        },
+        {
+          "name": "Get Lead by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/leads/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["leads", "1"]
+            },
+            "description": "Retrieve a specific lead by ID"
+          }
+        },
+        {
+          "name": "Enrich Lead",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/leads/1/enrichment",
+              "host": ["{{baseUrl}}"],
+              "path": ["leads", "1", "enrichment"]
+            },
+            "description": "Start lead enrichment process (background job)"
+          }
+        },
+        {
+          "name": "Check Enrichment Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/leads/1/enrichment/status/{{jobId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["leads", "1", "enrichment", "status", "{{jobId}}"]
+            },
+            "description": "Check the status of lead enrichment job"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "description": "Lead management endpoints (Clean Architecture/DDD implementation)"
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invoiceId\": 1,\n  \"amount\": 1500.00,\n  \"paymentDate\": \"2024-01-20\",\n  \"method\": \"credit_card\",\n  \"reference\": \"CC-2024-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments"]
+            },
+            "description": "Record a new payment"
+          }
+        },
+        {
+          "name": "Get All Payments",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/payments",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments"]
+            },
+            "description": "Retrieve all payments"
+          }
+        },
+        {
+          "name": "Get Payment by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/payments/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["payments", "1"]
+            },
+            "description": "Retrieve a specific payment by ID"
+          }
+        }
+      ],
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{token}}",
+            "type": "string"
+          }
+        ]
+      },
+      "description": "Payment management endpoints (require authentication)"
+    },
+    {
+      "name": "Metrics",
+      "item": [
+        {
+          "name": "Prometheus Metrics",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/metrics",
+              "host": ["{{baseUrl}}"],
+              "path": ["metrics"]
+            },
+            "description": "Retrieve Prometheus metrics (no authentication required)"
+          }
+        }
+      ],
+      "description": "Monitoring and metrics endpoints"
+    }
+  ]
+}

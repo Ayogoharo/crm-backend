@@ -2,7 +2,18 @@
 
 ## Overview
 
-This is a simple Customer Relationship Management (CRM) backend application. The system provides simple CRUD functionality for managing clients, leads, invoices, payments, and users with role-based access control. Built using **NestJS** framework with **TypeScript**, **TypeORM** for database management, **PostgreSQL** as the primary database, **Redis** for caching, and **Docker** for containerization. The application follows RESTful API principles, error handling, and database relations.
+This is a comprehensive Customer Relationship Management (CRM) backend application with **JWT authentication** and **role-based access control**. The system provides secure CRUD functionality for managing clients, leads, invoices, payments, and users. Built using **NestJS** framework with **TypeScript**, **TypeORM** for database management, **PostgreSQL** as the primary database, **Redis** for caching and job queues, and **Docker** for containerization.
+
+### Key Features
+
+- **JWT Authentication** with bcrypt password hashing
+- **Role-based Access Control** (Admin, Accountant, Sales)
+- **Prometheus Metrics** and structured logging
+- **Background Job Processing** with BullMQ/Redis
+- **Comprehensive Testing** (Unit, Integration, E2E)
+- **OpenAPI/Swagger Documentation**
+- **Clean Architecture** (DDD implementation in leads module)
+- **Request/Response Logging** with authentication context
 
 ## Setup Instructions
 
@@ -47,11 +58,28 @@ Follow these step-by-step instructions to install and run the application:
    TEST_POSTGRES_PASSWORD=your_test_postgres_password
    TEST_POSTGRES_DB=postgres_test_db_name
 
-   # Redis Configuration
+   # Redis Configuration (for caching and job queues)
+   REDIS_HOST=localhost
+   REDIS_PORT=6379
    REDIS_PASSWORD=your_redis_password
+
+   # JWT Authentication
+   JWT_SECRET=your-super-secret-jwt-key-change-in-production
+   JWT_EXPIRES_IN=24h
 
    # Application Environment
    NODE_ENV=development
+   PORT=3000
+
+   # CORS Configuration (optional)
+   ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001
+
+   # Email Configuration (for notifications)
+   MAIL_HOST=smtp.mailtrap.io
+   MAIL_PORT=2525
+   MAIL_USER=your_mailtrap_user
+   MAIL_PASS=your_mailtrap_password
+   MAIL_FROM=noreply@crm-backend.com
    ```
 
 4. **Start database services**
@@ -71,16 +99,19 @@ Follow these step-by-step instructions to install and run the application:
 6. **Run database migrations**
 
    For main database:
+
    ```bash
    npm run migrate:main
    ```
 
    For test database:
+
    ```bash
    npm run migrate:test
    ```
 
    Or run migrations on both databases:
+
    ```bash
    npm run migrate:both
    ```
@@ -88,49 +119,129 @@ Follow these step-by-step instructions to install and run the application:
 7. **Seed databases (optional)**
 
    For main database:
+
    ```bash
    npm run seed
    ```
 
    For test database:
+
    ```bash
    npm run seed:test
    ```
 
    Or seed both databases:
+
    ```bash
    npm run seed:both
    ```
 
 8. **Start the application**
+
    ```bash
-   # Development mode only
+   # Development mode with hot reload
    npm run start:dev
+
+   # Production mode
+   npm run start:prod
    ```
 
 The API will be available at `http://localhost:3000`
+**API Documentation**: `http://localhost:3000/api` (Swagger/OpenAPI)
+**Metrics**: `http://localhost:3000/metrics` (Prometheus format)
+
+## Authentication & Authorization
+
+### Authentication Flow
+
+1. **Login**: POST to `/auth/login` with email and password
+2. **Token**: Receive JWT access token in response
+3. **Authorization**: Include token in `Authorization: Bearer <token>` header for protected endpoints
+
+### Default Users (created by seeding)
+
+```bash
+# Admin User
+Email: admin@example.com
+Password: securePassword123
+Role: admin (full access)
+
+# Accountant User
+Email: accountant@example.com
+Password: securePassword123
+Role: accountant (invoices, payments, clients)
+
+# Sales User
+Email: sales@example.com
+Password: securePassword123
+Role: sales (leads, clients)
+```
+
+### Role-Based Permissions
+
+- **Admin**: Full access to all endpoints
+- **Accountant**: Can manage invoices, invoice items, payments, and view clients
+- **Sales**: Can manage leads and clients
+
+### Using Authentication
+
+#### cURL Example
+
+```bash
+# 1. Login to get token
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"securePassword123"}'
+
+# 2. Use token in subsequent requests
+curl -X GET http://localhost:3000/invoices \
+  -H "Authorization: Bearer <your-jwt-token>"
+```
+
+#### Postman Collection
+
+Import the provided Postman collection and environment files:
+
+- **Collection**: `postman/CRM-Backend-API.postman_collection.json`
+- **Environment**: `postman/CRM-Backend-Environment.postman_environment.json`
+
+The collection includes:
+
+- Pre-configured authentication requests for all roles
+- Automatic token storage and usage
+- Complete endpoint coverage with examples
+- Role-based request organization
 
 <details>
-<summary><strong>📚 API Endpoints</strong></summary>
+<summary><strong>API Endpoints</strong></summary>
 
-### Users Management
+### Authentication
 
-- **POST** `/users` - Create new user
+- **POST** `/auth/login` - Authenticate user and get JWT token
+  ```json
+  {
+    "email": "admin@example.com",
+    "password": "securePassword123"
+  }
+  ```
+  **Response**: `{ "access_token": "jwt.token.here" }`
+
+### Users Management _Requires Authentication_
+
+- **POST** `/users` - Create new user _(Admin only)_
   ```json
   {
     "email": "user@example.com",
-    "username": "johndoe",
     "password": "password123",
-    "fullName": "John Doe",
     "role": "admin" // admin | sales | accountant
   }
   ```
-- **GET** `/users` - Get all users
+- **GET** `/users` - Get all users _(Admin only)_
 - **GET** `/users/:id` - Get user by ID
-- **PUT** `/users` - Update user
-- **DELETE** `/users/:id` - Delete user
+- **PUT** `/users/:id` - Update user
+- **DELETE** `/users/:id` - Delete user _(Admin only)_
 
-### Clients Management
+### Clients Management _Requires Authentication_
 
 - **POST** `/clients` - Create new client
   ```json
@@ -143,48 +254,53 @@ The API will be available at `http://localhost:3000`
   ```
 - **GET** `/clients` - Get all clients
 - **GET** `/clients/:id` - Get client by ID
-- **PUT** `/clients` - Update client
-- **DELETE** `/clients/:id` - Delete client
+- **PUT** `/clients/:id` - Update client
+- **DELETE** `/clients/:id` - Delete client _(Admin only)_
 - **GET** `/clients/total/:id` - Get client invoice total
 
-### Leads Management
+### Leads Management _Requires Authentication_ _(Clean Architecture/DDD)_
 
 - **POST** `/leads` - Create new lead
   ```json
   {
-    "clientId": 1,
-    "ownerId": 1,
-    "status": "new", // new | contacted | qualified | won | lost
+    "name": "John Doe",
+    "email": "john@company.com",
+    "phone": "+1234567890",
+    "company": "Tech Solutions Inc",
     "source": "website",
-    "notes": "Interested in our premium package"
+    "notes": "Interested in our enterprise package"
   }
   ```
-- **GET** `/leads` - Get all leads (supports filtering by userId and status)
+- **GET** `/leads` - Get all leads
 - **GET** `/leads/:id` - Get lead by ID
 - **PUT** `/leads/:id` - Update lead
-- **DELETE** `/leads/:id` - Delete lead
+- **DELETE** `/leads/:id` - Delete lead _(Admin only)_
+- **GET** `/leads/:id/enrichment` - Start lead enrichment (background job)
+- **GET** `/leads/:id/enrichment/status/:jobId` - Check enrichment status
 
-### Invoices Management
+### Invoices Management _Requires Authentication_
 
-- **POST** `/invoices` - Create new invoice
+- **POST** `/invoices` - Create new invoice _(Admin/Accountant only)_
   ```json
   {
     "clientId": 1,
-    "issuedBy": 1,
-    "invoiceDate": "2024-01-15",
+    "amount": 1500.0,
+    "status": "pending",
+    "issueDate": "2024-01-15",
     "dueDate": "2024-02-15",
-    "status": "draft", // draft | sent | paid | overdue | cancelled
-    "totalAmount": 1500.0
+    "description": "Monthly consulting services"
   }
   ```
 - **GET** `/invoices` - Get all invoices (supports filtering by status)
 - **GET** `/invoices/:id` - Get invoice by ID
-- **PUT** `/invoices` - Update invoice
-- **DELETE** `/invoices/:id` - Delete invoice
+- **PUT** `/invoices/:id` - Update invoice _(Admin/Accountant only)_
+- **DELETE** `/invoices/:id` - Delete invoice _(Admin only)_
+- **GET** `/invoices/:id/pdf` - Generate invoice PDF (background job)
+- **GET** `/invoices/:id/pdf/status/:jobId` - Check PDF generation status
 
-### Invoice Items Management
+### Invoice Items Management _Requires Authentication_
 
-- **POST** `/invoice-items` - Create new invoice item
+- **POST** `/invoice-items` - Create new invoice item _(Admin/Accountant only)_
   ```json
   {
     "invoiceId": 1,
@@ -196,26 +312,32 @@ The API will be available at `http://localhost:3000`
   ```
 - **GET** `/invoice-items` - Get all invoice items
 - **GET** `/invoice-items/:id` - Get invoice item by ID
-- **PUT** `/invoice-items` - Update invoice item
-- **DELETE** `/invoice-items/:id` - Delete invoice item
+- **PUT** `/invoice-items/:id` - Update invoice item _(Admin/Accountant only)_
+- **DELETE** `/invoice-items/:id` - Delete invoice item _(Admin only)_
 
-### Payments Management
+### Payments Management _Requires Authentication_
 
-- **POST** `/payments` - Create new payment
+- **POST** `/payments` - Create new payment _(Admin/Accountant only)_
   ```json
   {
     "invoiceId": 1,
-    "recordedBy": 1,
-    "paymentDate": "2024-01-20",
     "amount": 1500.0,
-    "method": "bank_transfer", // cash | bank_transfer | credit_card | paypal
-    "reference": "TXN123456789"
+    "paymentDate": "2024-01-20",
+    "method": "credit_card",
+    "reference": "CC-2024-001"
   }
   ```
 - **GET** `/payments` - Get all payments
 - **GET** `/payments/:id` - Get payment by ID
-- **PUT** `/payments` - Update payment
-- **DELETE** `/payments/:id` - Delete payment
+- **PUT** `/payments/:id` - Update payment _(Admin/Accountant only)_
+- **DELETE** `/payments/:id` - Delete payment _(Admin only)_
+
+### Monitoring & Metrics
+
+- **GET** `/metrics` - Prometheus metrics (no authentication required)
+  - API request metrics (duration, status codes, endpoints)
+  - Business metrics (leads, clients, invoices, payments counts)
+  - System health metrics
 
 </details>
 

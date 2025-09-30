@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { Logger } from 'nestjs-pino';
@@ -31,10 +32,14 @@ async function bootstrap() {
     }),
   );
 
+  // Enable global serializer interceptor for consistent data sanitization
+  app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
   // Setup Swagger/OpenAPI documentation
   const config = new DocumentBuilder()
     .setTitle('CRM Backend API')
-    .setDescription(`
+    .setDescription(
+      `
       A comprehensive CRM backend API with JWT authentication and role-based access control.
 
       ## Authentication
@@ -50,7 +55,8 @@ async function bootstrap() {
 
       ## Rate Limiting
       API endpoints are rate limited. See response headers for current limits.
-    `)
+    `,
+    )
     .setVersion('1.0.0')
     .addBearerAuth(
       {
