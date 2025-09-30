@@ -9,7 +9,7 @@ This is a comprehensive Customer Relationship Management (CRM) backend applicati
 - **JWT Authentication** with bcrypt password hashing
 - **Role-based Access Control** (Admin, Accountant, Sales)
 - **Prometheus Metrics** and structured logging
-- **Background Job Processing** with BullMQ/Redis
+- **Background Job Processing** with Bull/Redis
 - **Comprehensive Testing** (Unit, Integration, E2E)
 - **OpenAPI/Swagger Documentation**
 - **Clean Architecture** (DDD implementation in leads module)
