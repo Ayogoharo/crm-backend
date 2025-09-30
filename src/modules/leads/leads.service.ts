@@ -120,8 +120,9 @@ export class LeadsService {
     return result.lead;
   }
 
-  async delete(_id: number): Promise<void> {
+  delete(id: number): Promise<void> {
     // Note: You'll need to implement a DeleteLeadUseCase for this method
+    console.log(`Delete lead with id: ${id}`);
     throw new Error('Delete functionality not yet implemented');
   }
 }

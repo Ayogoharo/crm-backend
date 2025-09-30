@@ -9,20 +9,26 @@ import { tap } from 'rxjs/operators';
 import { MetricsService } from '../../metrics/metrics.service';
 import { Request, Response } from 'express';
 
+interface RequestWithRoute extends Request {
+  route:
+    | {
+        path?: string;
+      }
+    | undefined;
+}
+
 @Injectable()
 export class MetricsInterceptor implements NestInterceptor {
   constructor(private readonly metricsService: MetricsService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
-    const request = httpContext.getRequest<Request>();
+    const request = httpContext.getRequest<RequestWithRoute>();
     const response = httpContext.getResponse<Response>();
 
     const startTime = Date.now();
     const method = request.method;
-    const endpoint = this.normalizeEndpoint(
-      (request.route?.path as string) || request.url,
-    );
+    const endpoint = this.normalizeEndpoint(request.route?.path || request.url);
 
     return next.handle().pipe(
       tap(() => {

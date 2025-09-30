@@ -71,12 +71,12 @@ export class ScheduledMetricsService {
 
   private async updateTotalRevenue() {
     try {
-      const result = await this.paymentRepository
+      const result = (await this.paymentRepository
         .createQueryBuilder('payment')
         .select('SUM(payment.amount)', 'total')
-        .getRawOne();
+        .getRawOne()) as { total?: string | number };
 
-      const totalRevenue = parseFloat((result?.total as string) || '0');
+      const totalRevenue = parseFloat(String(result?.total || '0'));
       this.metricsService.setTotalRevenue(totalRevenue);
     } catch (error) {
       console.error('Error updating total revenue metric:', error);

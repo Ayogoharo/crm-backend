@@ -1,5 +1,23 @@
 import { join } from 'path';
 
+interface LogRequest {
+  id?: string;
+  method?: string;
+  url?: string;
+  headers?: {
+    host?: string;
+    'user-agent'?: string;
+    'content-type'?: string;
+  };
+}
+
+interface LogResponse {
+  statusCode?: number;
+  headers?: {
+    'content-type'?: string;
+  };
+}
+
 /**
  * Logging configuration for different environments
  */
@@ -12,20 +30,20 @@ export const getLoggerConfig = () => {
   const baseConfig = {
     level: isProduction ? 'info' : 'debug',
     serializers: {
-      req: (req: any) => ({
+      req: (req: LogRequest) => ({
         id: req.id,
         method: req.method,
         url: req.url,
         headers: {
-          host: req.headers.host,
-          'user-agent': req.headers['user-agent'],
-          'content-type': req.headers['content-type'],
+          host: req.headers?.host,
+          'user-agent': req.headers?.['user-agent'],
+          'content-type': req.headers?.['content-type'],
         },
       }),
-      res: (res: any) => ({
+      res: (res: LogResponse) => ({
         statusCode: res.statusCode,
         headers: {
-          'content-type': res.headers['content-type'],
+          'content-type': res.headers?.['content-type'],
         },
       }),
     },
