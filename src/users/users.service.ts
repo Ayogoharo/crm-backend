@@ -6,14 +6,13 @@ import {
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserBodyDto } from './dto/create-userbody.dto';
+import { CreateUserBodyDto } from './dto/create-user-body.dto';
 import { CreateUserResponseDto } from './dto/create-user-response.dto';
 import { FindAllUsersResponseDto } from './dto/find-all-users-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
 import { UpdateUserResponseDto } from './dto/update-user-response.dto';
 import { UpdateUserBodyDto } from './dto/update-user-body.dto';
 import { PatchUserBodyDto } from './dto/patch-user-body.dto';
-import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class UsersService {
@@ -35,8 +34,8 @@ export class UsersService {
   async findAll(): Promise<FindAllUsersResponseDto> {
     try {
       const users = await this.userRepository.find();
-      const sanitizedUsers = users.map((user) => instanceToPlain(user));
-      return { users: sanitizedUsers as any };
+      // Global ClassSerializerInterceptor handles serialization automatically
+      return { users };
     } catch (error) {
       throw new InternalServerErrorException(
         `Error finding users: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -50,7 +49,8 @@ export class UsersService {
       if (!user || user === null) {
         throw new NotFoundException(`User with ID ${id} not found`);
       }
-      return instanceToPlain(user) as FindByIdResponseDto;
+      // Global ClassSerializerInterceptor handles serialization automatically
+      return user;
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

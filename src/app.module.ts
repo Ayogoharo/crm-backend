@@ -71,7 +71,7 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
       password: `${process.env.POSTGRES_PASSWORD}`,
       database: `${process.env.POSTGRES_DB}`,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: process.env.NODE_ENV !== 'production',
     }),
   ],
   controllers: [AppController],

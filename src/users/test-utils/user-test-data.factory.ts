@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { CreateUserBodyDto } from '../dto/create-userbody.dto';
+import { CreateUserBodyDto } from '../dto/create-user-body.dto';
 
 export class UserTestDataFactory {
   static createValidUserData(

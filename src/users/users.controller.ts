@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { UsersService } from './users.service';
-import { CreateUserBodyDto } from './dto/create-userbody.dto';
+import { CreateUserBodyDto } from './dto/create-user-body.dto';
 import { CreateUserResponseDto } from './dto/create-user-response.dto';
 import { FindAllUsersResponseDto } from './dto/find-all-users-response.dto';
 import { FindByIdResponseDto } from './dto/find-by-id-response.dto';
